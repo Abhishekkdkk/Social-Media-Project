@@ -3,7 +3,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 dotenv.config();
-import userroutes from './routes/user.routes.js'
+import userroutes from './src/routes/user.route.js'
 
 const app = express();
 app.use(cors());
