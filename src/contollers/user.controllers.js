@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
 import { uploadonCloudinary } from "../utils/cloudinary.js";
+import jwt from "jsonwebtoken";
 const generateAccessandRefreshToken = (user) => {
   try {
     const accessToken = user.generateAccessToken();
@@ -124,6 +125,43 @@ const logout = async (req, res, next) => {
     .json({ message: "Logged out successfully" });
 };
 
+const refreshAccessToken = async (req, res, next) => {
+  const incomingrefreshToken = req.cookies.refreshToken;
+  if (!incomingrefreshToken) {
+    return res.status(401).json({ error: "No refresh token provided" });
+  }
+  try {
+    jwt.verify(
+      incomingrefreshToken,
+      process.env.REFRESH_TOKEN_SECRET,
+      async (err, decoded) => {
+        if (err) {
+          return res.status(403).json({ error: "Invalid refresh token" });
+        }
+        const user = await User.findById(decoded._id);
+        if (!user || user.refreshToken !== incomingrefreshToken) {
+          return res.status(403).json({ error: "Invalid refresh token" });
+        }
+        const { newaccessToken, newrefreshToken } =
+          generateAccessandRefreshToken(user);
+        const options = {
+          httpOnly: true,
+          secure: true,
+        };
+        return res
+          .status(200)
+          .cookie("refreshToken", newrefreshToken, options)
+          .cookie("accessToken", newaccessToken, options)
+          .json({
+            message: "Token refreshed successfully",
+          });
+      }
+    );
+  } catch (error) {
+    next(error);
+  }
+};
 export { userRegister };
 export { userLogin };
 export { logout };
+export { refreshAccessToken };

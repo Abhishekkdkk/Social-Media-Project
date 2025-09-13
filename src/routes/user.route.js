@@ -15,5 +15,6 @@ router
 
 router.route("/login").post(userLogin);
 router.route("/logout").post(verifyjwt, logout);
-
+//frontend guy will write a code to call this api everytime the access token expires
+router.route("/refresh").post(refreshAccessToken);
 export default router;
