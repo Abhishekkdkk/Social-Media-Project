@@ -1,5 +1,20 @@
 import User from "../models/user.model.js";
 import { uploadonCloudinary } from "../utils/cloudinary.js";
+const generateAccessandRefreshToken = (user) => {
+  try {
+    const accessToken = user.generateAccessToken();
+    user.accessToken = accessToken;
+    //console.log("Access Token:", accessToken);
+    const refreshToken = user.generateRefreshToken();
+    user.refreshToken = refreshToken;
+    user.save({ validateBeforeSave: false });
+    //console.log("Refresh Token:", refreshToken);
+    return { accessToken, refreshToken };
+  } catch (error) {
+    console.error("Error generating tokens:", error);
+  }
+};
+
 const userRegister = async (req, res, next) => {
   try {
     if (!req.body)
@@ -20,17 +35,22 @@ const userRegister = async (req, res, next) => {
       return res
         .status(400)
         .json({ error: "Please upload a required picture" });
+    //console.log("Files received:", req.files);
     const avatarLocalPath = req.files.avatar[0].path;
+    // console.log("Avatar local path:", avatarLocalPath);
     if (!avatarLocalPath)
       return res.status(400).json({ error: "Avatar picture is required" });
 
     const cloudinaryResult = await uploadonCloudinary(avatarLocalPath);
+
     const user = new User({
       username,
       email,
       password,
       avatar: cloudinaryResult.secure_url,
     });
+    const refreshToken = user.generateRefreshToken();
+    user.refreshToken = refreshToken;
     await user.save();
     const usersuccess = await User.findOne({ email }).select(
       "-password -refreshToken"
@@ -57,15 +77,53 @@ const userLogin = async (req, res, next) => {
         .json({ error: "Username and password are required" });
 
     const user = await User.findOne({ username });
+    //console.log("User found:", user);
     if (!user) return res.status(404).json({ error: "User not found" });
     if (!user.isPasswordCorrect(password))
       return res
         .status(401)
         .json({ error: "Incorrect password! Enter the correct password" });
-    console.log("User logged in successfully");
+    const { accessToken, refreshToken } = generateAccessandRefreshToken(user);
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+    return res
+      .status(200)
+      .cookie("refreshToken", refreshToken, options)
+      .cookie("accessToken", accessToken, options)
+      .json({
+        message: "Login successful",
+        accessToken,
+        user: {
+          _id: user._id,
+          username: user.username,
+          email: user.email,
+          avatar: user.avatar,
+        },
+      });
   } catch (error) {
     next(error);
   }
 };
+
+const logout = async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { refreshToken: null },
+    { new: true }
+  );
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+  return res
+    .status(200)
+    .clearCookie("refreshToken", options)
+    .clearCookie("accessToken", options)
+    .json({ message: "Logged out successfully" });
+};
+
 export { userRegister };
 export { userLogin };
+export { logout };
