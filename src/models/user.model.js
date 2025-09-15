@@ -34,7 +34,15 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
     },
-  },
+    videos:{
+      type:Array,//uploaded videos by the user
+      default:[],
+    },
+    likedvideos:{
+      type:Array,//videos liked by the user
+      default:[], 
+
+  }   },
   { timestamps: true }
 );
 userSchema.pre("save", async function (next) {

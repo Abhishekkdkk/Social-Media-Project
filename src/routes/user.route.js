@@ -5,6 +5,7 @@ import {
   userLogin,
   logout,
   refreshAccessToken,
+  changePassword,
 } from "../contollers/user.controllers.js";
 import upload from "../middlewares/multer.middleware.js";
 import verifyjwt from "../middlewares/auth.middleware.js";
@@ -18,4 +19,6 @@ router.route("/login").post(userLogin);
 router.route("/logout").post(verifyjwt, logout);
 //frontend guy will write a code to call this api everytime the access token expires
 router.route("/refresh").post(refreshAccessToken);
+
+router.route("/changePassword").post(verifyjwt, changePassword);//give oldPassword and newPassword in body
 export default router;
