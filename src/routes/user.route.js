@@ -4,6 +4,7 @@ import {
   userRegister,
   userLogin,
   logout,
+  refreshAccessToken,
 } from "../contollers/user.controllers.js";
 import upload from "../middlewares/multer.middleware.js";
 import verifyjwt from "../middlewares/auth.middleware.js";
