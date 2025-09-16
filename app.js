@@ -11,6 +11,7 @@ app.use(express.static("public"));
 app.use(cookieParser());
 app.use("/api/users", userRouter);
 app.use("/api/videos", videoRouter);
+app.use("/api/posts", videoRouter);
 export default app;
 app.listen(process.env.PORT || 5000, () => {
   console.log(`Server is running on port ${process.env.PORT || 5000}`);

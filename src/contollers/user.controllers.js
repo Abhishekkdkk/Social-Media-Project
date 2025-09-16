@@ -1,5 +1,8 @@
 import User from "../models/user.model.js";
-import { uploadonCloudinary } from "../utils/cloudinary.js";
+import {
+  uploadonCloudinary,
+  deleteFromCloudinary,
+} from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 const generateAccessandRefreshToken = (user) => {
   try {
@@ -48,7 +51,10 @@ const userRegister = async (req, res, next) => {
       username,
       email,
       password,
-      avatar: cloudinaryResult.secure_url,
+      avatar: {
+        url: cloudinaryResult.secure_url,
+        public_id: cloudinaryResult.public_id,
+      },
     });
     const refreshToken = user.generateRefreshToken();
     user.refreshToken = refreshToken;
@@ -181,8 +187,38 @@ const changePassword = async (req, res, next) => {
     next(error);
   }
 };
+
+const changeAvatar = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ error: "User not found" });
+    if (!req.files)
+      return res
+        .status(400)
+        .json({ error: "Please upload a required picture" });
+    if (user.avatar?.public_id) {
+      await deleteFromCloudinary(user.avatar.public_id);
+      console.log("Previous avatar deleted from Cloudinary");
+    }
+
+    const newAvatarLocalPath = req.files.avatar[0].path;
+
+    const uploadResult = await uploadonCloudinary(newAvatarLocalPath);
+    user.avatar = {
+      url: uploadResult.secure_url,
+      public_id: uploadResult.public_id,
+    };
+    await user.save({ validateBeforeSave: false });
+    return res
+      .status(200)
+      .json({ message: "Avatar changed successfully", avatar: user.avatar });
+  } catch (error) {
+    next(error);
+  }
+};
 export { userRegister };
 export { userLogin };
 export { logout };
 export { refreshAccessToken };
 export { changePassword };
+export { changeAvatar };

@@ -6,6 +6,7 @@ import {
   logout,
   refreshAccessToken,
   changePassword,
+  changeAvatar,
 } from "../contollers/user.controllers.js";
 import upload from "../middlewares/multer.middleware.js";
 import verifyjwt from "../middlewares/auth.middleware.js";
@@ -20,5 +21,12 @@ router.route("/logout").post(verifyjwt, logout);
 //frontend guy will write a code to call this api everytime the access token expires
 router.route("/refresh").post(refreshAccessToken);
 
-router.route("/changePassword").post(verifyjwt, changePassword);//give oldPassword and newPassword in body
+router.route("/changePassword").post(verifyjwt, changePassword); //give oldPassword and newPassword in body
+router
+  .route("/changeAvatar")
+  .post(
+    verifyjwt,
+    upload.fields([{ name: "avatar", maxCount: 1 }]),
+    changeAvatar
+  ); //upload new avatar in form-data with key as avatar
 export default router;
