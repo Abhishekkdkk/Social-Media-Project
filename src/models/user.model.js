@@ -28,9 +28,9 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: null
     },
-    avatar: {
-        type: String,
-        required : true,
+    avatar : {
+        url: String, 
+        public_id : String
     }
     
     
@@ -38,9 +38,6 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', async function(next) {
     if (this.isNew || this.isModified('password')) {
     this.password = await bcrypt.hash(this.password, 10);
-    }
-    if (this.isNew || this.isModified('refreshToken')) {
-    this.refreshToken = await this.generateRefreshToken();
     }
     next();
 });

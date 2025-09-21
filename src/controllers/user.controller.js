@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
-import connectDB from "../db/index.js";
+import connectDB from '../db/index.js';
 import User from '../models/user.model.js';
-import cloudinary from "../utils/cloudinary.js";
+import {cloudinary, uploadtocloudinary, delfromcloudinary} from "../utils/cloudinary.js";
 import path from 'path';
 import {delfile} from '../utils/helper.js';
+import jwt from 'jsonwebtoken';
+
 connectDB();
 
 let registeruser = async (req, res, next) => {
@@ -27,16 +29,26 @@ let registeruser = async (req, res, next) => {
         let filepath = path.join(process.cwd(), 'uploads/useravatar', avatar);
         //   process.cwd() = __dirname for es6
 
-        const result = await cloudinary.uploader.upload(filepath);
-        let imgurl = result.secure_url;
-
-        delfile(avatar);
+        const result = await uploadtocloudinary(filepath);
+        let imgurl = {url : result.secure_url, public_id : result.public_id};
 
         let user = await User.create({
             username, email, password, avatar : imgurl
         });
         let accessToken = await user.generateAccessToken();
-        res.status(200).json({success : true, message : 'User registration completed', accessToken, refreshToken : user.refreshToken});
+        res.status(200).cookie('refreshToken', user.refreshToken, {
+            httpOnly : true,
+           // secure : true,
+            maxAge : 7 * 24 * 60 * 60 * 1000,
+            sameSite : 'strict'
+        } )
+        .cookie('accessToken', accessToken, {
+            httpOnly : true,
+           // secure : true,
+            maxAge : 24 * 60 * 60 * 1000,
+            sameSite : 'strict'
+        } )
+        .json({success : true, message : 'User registration successful'});
     }
     catch(e){next(e);}
 }
@@ -55,23 +67,108 @@ let loginuser = async (req, res, next) => {
         let refreshToken = await user.generateRefreshToken();
         user.refreshToken = refreshToken;
         await user.save();
-        res.status(200).json({success : true, message : 'User login successful', accessToken, refreshToken});
+
+        res.status(200).cookie('refreshToken', refreshToken, {
+            httpOnly : true,
+            //secure : true,
+            maxAge : 7 * 24 * 60 * 60 * 1000,
+            sameSite : 'strict'
+        } )
+        .cookie('accessToken', accessToken, {
+            httpOnly : true,
+            //secure : true,
+            maxAge : 24 * 60 * 60 * 1000,
+            sameSite : 'strict'
+        } )
+        .json({success : true, message : 'User login successful'});
     }
     catch(e){next(e);}
 }
 
 let logoutuser = async(req, res, next) => {
     try{
-    if(!req.body) return res.status(401).send('Enter refresh token');
-    let {refreshToken} = req.body;
-    
-    
-    let user = await User.findOne({refreshToken});
-    if(!user) return res.status(401).send('Incorrect refresh token');
-    user.refreshToken = null;
-    await user.save();
+        await User.findByIdAndUpdate(req.user._id, {refreshToken : null});
+        let options = {httpOnly : true, secure : true, sameSite : 'strict'}
+        res.status(200)
+        .clearCookie('refreshToken', options)
+        .clearCookie('accessToken', options)
+        .json({success : true, message : 'User logout successful'});
 }
 catch(e){next(e);}
 }
 
-export {registeruser, loginuser, logoutuser};
+let refreshAccessToken = async(req, res, next) => {
+     try{
+        const givenToken = req.cookies.refreshToken;
+        if(!givenToken) return res.status(403).send('No refresh token');
+    
+        let decoded = jwt.verify(givenToken, process.env.REFRESH_TOKEN_SECRET);
+        //console.log(decoded);
+        let user = await User.findById(decoded._id);
+        if(!user || givenToken !== user.refreshToken) return res.status(401).send('Invalid refresh token');
+        let accessToken = await user.generateAccessToken();
+        let refreshToken = await user.generateRefreshToken();
+        user.refreshToken = refreshToken;
+        await user.save();
+
+        res.status(200).cookie('refreshToken', refreshToken, {
+            httpOnly : true,
+           // secure : true,
+            maxAge : 7 * 24 * 60 * 60 * 1000,
+            sameSite : 'strict'
+        } )
+        .cookie('accessToken', accessToken, {
+            httpOnly : true,
+           // secure : true,
+            maxAge : 24 * 60 * 60 * 1000,
+            sameSite : 'strict'
+        } )
+        .json({success : true, message : 'Token refreshed successfully'});
+
+    }catch(e){next(e)}
+}
+
+let changepw = async(req, res, next) => {
+    try{
+        if(!req.body) return res.status(400).json({error : 'Fields cannot be empty'});
+    let {newpassword, oldpassword} = req.body;
+    if(!oldpassword) return res.status(400).json({error : 'Old password required'});
+    if(!newpassword) return res.status(400).json({error : 'New password required'});
+    if(oldpassword === newpassword) return res.status(400).json({error : 'New password cannot be same as old password'});
+    let user = await User.findById(req.user._id);
+
+    let match = await user.isPasswordCorrect(oldpassword);
+    if(!user) return res.status(403).json({error : 'User not found'});
+    if(!match) return res.status(401).json({error : 'Old password incorect'});
+    user.password = newpassword;
+    await user.save();
+    res.status(200).json({success : true, message : 'Password changed successfully'});
+    }catch(e){next(e);}
+
+}
+
+let changeAvatar = async(req, res, next) => {
+    try{
+        if(!req.file) return res.status(400).json({error : 'Avatar must be sent'});
+        let user = await User.findById(req.user._id);
+         let avatar = req.file.filename;
+        if(!user || !user.avatar?.public_id){ delfile(avatar); return res.status(403).json({error : 'Avatar not found'});}
+        await delfromcloudinary(user.avatar.public_id);
+
+        user.avatar = null;
+
+        let filepath = path.join(process.cwd(), 'uploads/useravatar', avatar);
+        //   process.cwd() = __dirname for es6
+
+        const result = await uploadtocloudinary(filepath);
+        let imgurl = {url : result.secure_url, public_id : result.public_id};
+
+        
+        user.avatar = imgurl;
+        await user.save();
+        res.json({success : true, message : 'Avatar changed successfully'});
+
+    }catch(e){next(e);}
+}
+
+export {registeruser, loginuser, logoutuser, refreshAccessToken, changepw, changeAvatar};
