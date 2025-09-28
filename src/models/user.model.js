@@ -20,6 +20,16 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    followers : [{
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'User',
+        default : []
+    }],
+    followings : [{
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'user',
+        default : []
+    }],
     watchHistory: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Video'
@@ -31,8 +41,31 @@ const userSchema = new mongoose.Schema({
     avatar : {
         url: String, 
         public_id : String
-    }
-    
+    },
+    videos : {
+        type : Array,
+        default : []
+    },
+    likedvideos : [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Video'
+    }],
+    images : {
+        type : Array,
+        default : []
+    },
+    likedimages : [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Image',
+    }],
+    texts : {
+        type : Array,
+        default : []
+    },
+    likedtexts : [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Text',
+    }]
     
 },{timestamps: true});
 userSchema.pre('save', async function(next) {

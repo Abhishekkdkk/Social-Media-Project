@@ -1,14 +1,12 @@
 import mongoose from "mongoose";
-import connectDB from '../db/index.js';
+
 import User from '../models/user.model.js';
 import {cloudinary, uploadtocloudinary, delfromcloudinary} from "../utils/cloudinary.js";
 import path from 'path';
 import {delfile} from '../utils/helper.js';
 import jwt from 'jsonwebtoken';
 
-connectDB();
-
-let registeruser = async (req, res, next) => {
+const registeruser = async (req, res, next) => {
     if(!req.body) return res.status(400).send('Fields cannot be empty');
     if(!req.file) return res.status(400).send('Avatar must be sent');
     let {username, email, password} = req.body;
@@ -26,25 +24,30 @@ let registeruser = async (req, res, next) => {
 
     
 
-        let filepath = path.join(process.cwd(), 'uploads/useravatar', avatar);
+        let filepath = path.join(process.cwd(), 'uploads', avatar);
         //   process.cwd() = __dirname for es6
 
         const result = await uploadtocloudinary(filepath);
         let imgurl = {url : result.secure_url, public_id : result.public_id};
 
+        
         let user = await User.create({
             username, email, password, avatar : imgurl
         });
+        let refreshToken = await user.generateRefreshToken();
         let accessToken = await user.generateAccessToken();
-        res.status(200).cookie('refreshToken', user.refreshToken, {
+        user.refreshToken = refreshToken;
+        await user.save();
+        
+        res.status(201).cookie('refreshToken', refreshToken, {
             httpOnly : true,
-           // secure : true,
+            secure : true,
             maxAge : 7 * 24 * 60 * 60 * 1000,
             sameSite : 'strict'
         } )
         .cookie('accessToken', accessToken, {
             httpOnly : true,
-           // secure : true,
+            secure : true,
             maxAge : 24 * 60 * 60 * 1000,
             sameSite : 'strict'
         } )
@@ -53,7 +56,7 @@ let registeruser = async (req, res, next) => {
     catch(e){next(e);}
 }
 
-let loginuser = async (req, res, next) => {
+const loginuser = async (req, res, next) => {
     if(!req.body) return res.status(400).send('Fields cannot be empty');
     let {email, password} = req.body;
     if(!email) return res.status(400).send('Email cannot be empty');
@@ -70,13 +73,13 @@ let loginuser = async (req, res, next) => {
 
         res.status(200).cookie('refreshToken', refreshToken, {
             httpOnly : true,
-            //secure : true,
+            secure : true,
             maxAge : 7 * 24 * 60 * 60 * 1000,
             sameSite : 'strict'
         } )
         .cookie('accessToken', accessToken, {
             httpOnly : true,
-            //secure : true,
+            secure : true,
             maxAge : 24 * 60 * 60 * 1000,
             sameSite : 'strict'
         } )
@@ -85,9 +88,10 @@ let loginuser = async (req, res, next) => {
     catch(e){next(e);}
 }
 
-let logoutuser = async(req, res, next) => {
+const logoutuser = async(req, res, next) => {
     try{
-        await User.findByIdAndUpdate(req.user._id, {refreshToken : null});
+        let user = await User.findByIdAndUpdate(req.user._id, {refreshToken : null});
+        if(!user) return res.status(401).json({error : 'Invalid access token'});
         let options = {httpOnly : true, secure : true, sameSite : 'strict'}
         res.status(200)
         .clearCookie('refreshToken', options)
@@ -97,7 +101,7 @@ let logoutuser = async(req, res, next) => {
 catch(e){next(e);}
 }
 
-let refreshAccessToken = async(req, res, next) => {
+const refreshAccessToken = async(req, res, next) => {
      try{
         const givenToken = req.cookies.refreshToken;
         if(!givenToken) return res.status(403).send('No refresh token');
@@ -105,7 +109,7 @@ let refreshAccessToken = async(req, res, next) => {
         let decoded = jwt.verify(givenToken, process.env.REFRESH_TOKEN_SECRET);
         //console.log(decoded);
         let user = await User.findById(decoded._id);
-        if(!user || givenToken !== user.refreshToken) return res.status(401).send('Invalid refresh token');
+        if(!user || givenToken !== user.refreshToken) return res.status(401).json({error : 'Invalid refresh token'});
         let accessToken = await user.generateAccessToken();
         let refreshToken = await user.generateRefreshToken();
         user.refreshToken = refreshToken;
@@ -113,13 +117,13 @@ let refreshAccessToken = async(req, res, next) => {
 
         res.status(200).cookie('refreshToken', refreshToken, {
             httpOnly : true,
-           // secure : true,
+            secure : true,
             maxAge : 7 * 24 * 60 * 60 * 1000,
             sameSite : 'strict'
         } )
         .cookie('accessToken', accessToken, {
             httpOnly : true,
-           // secure : true,
+            secure : true,
             maxAge : 24 * 60 * 60 * 1000,
             sameSite : 'strict'
         } )
@@ -128,7 +132,7 @@ let refreshAccessToken = async(req, res, next) => {
     }catch(e){next(e)}
 }
 
-let changepw = async(req, res, next) => {
+const changepw = async(req, res, next) => {
     try{
         if(!req.body) return res.status(400).json({error : 'Fields cannot be empty'});
     let {newpassword, oldpassword} = req.body;
@@ -147,17 +151,17 @@ let changepw = async(req, res, next) => {
 
 }
 
-let changeAvatar = async(req, res, next) => {
+const changeAvatar = async(req, res, next) => {
     try{
         if(!req.file) return res.status(400).json({error : 'Avatar must be sent'});
         let user = await User.findById(req.user._id);
          let avatar = req.file.filename;
-        if(!user || !user.avatar?.public_id){ delfile(avatar); return res.status(403).json({error : 'Avatar not found'});}
+        if(!user || !user.avatar?.public_id){ delfile(avatar); return res.status(404).json({error : 'Avatar not found'});}
         await delfromcloudinary(user.avatar.public_id);
 
         user.avatar = null;
 
-        let filepath = path.join(process.cwd(), 'uploads/useravatar', avatar);
+        let filepath = path.join(process.cwd(), 'uploads', avatar);
         //   process.cwd() = __dirname for es6
 
         const result = await uploadtocloudinary(filepath);
@@ -166,9 +170,34 @@ let changeAvatar = async(req, res, next) => {
         
         user.avatar = imgurl;
         await user.save();
-        res.json({success : true, message : 'Avatar changed successfully'});
+        res.status(200).json({success : true, message : 'Avatar changed successfully'});
 
     }catch(e){next(e);}
 }
 
-export {registeruser, loginuser, logoutuser, refreshAccessToken, changepw, changeAvatar};
+const followuser = async (req, res, next) => {
+    try{
+        let currentuser = await User.findById(req.user._id);
+        if(!currentuser) return res.status(401).json({error : 'Invalid Access token'});
+
+        let targetuser = await User.findById(req.params.id);
+        if(!targetuser) return res.status(404).json({error : 'User not found'});
+
+        if(currentuser.followings.some(id => id.equals(req.params.id))){
+            currentuser.followings = currentuser.followings.filter(id => !id.equals(targetuser._id));
+            targetuser.followers = targetuser.followers.filter(id => !id.equals(currentuser._id));
+            await currentuser.save();
+            await targetuser.save();
+            return res.status(200).json({success : true, message : 'Unfollowed user successfully'});
+        }
+
+        currentuser.followings.push(targetuser._id);
+        targetuser.followers.push(currentuser._id);
+
+        await currentuser.save();
+        await targetuser.save();
+        res.status(200).json({success : true, message : 'Followed user successfully'});
+    }catch(e){next(e);}
+}
+
+export {registeruser, loginuser, logoutuser, refreshAccessToken, changepw, changeAvatar, followuser};
