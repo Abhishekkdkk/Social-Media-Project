@@ -7,7 +7,9 @@ import {
   refreshAccessToken,
   changePassword,
   changeAvatar,
+  userProfile,
 } from "../contollers/user.controllers.js";
+import { followUser } from "../contollers/follower.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 import verifyjwt from "../middlewares/auth.middleware.js";
 const router = Router();
@@ -29,4 +31,20 @@ router
     upload.fields([{ name: "avatar", maxCount: 1 }]),
     changeAvatar
   ); //upload new avatar in form-data with key as avatar
+
+router.route("/profile/:username").get(verifyjwt, userProfile); //give username as params
+router.route("/follow/:channel").post(verifyjwt, followUser); //give channelId as params
+
+//   router.route("/test").get((req, res) => {
+//   const randomData = {
+//     users: [
+//       { id: 1, name: "Alice", age: Math.floor(Math.random() * 50) + 18 },
+//       { id: 2, name: "Bob", age: Math.floor(Math.random() * 50) + 18 },
+//       { id: 3, name: "Charlie", age: Math.floor(Math.random() * 50) + 18 },
+//     ],
+//     timestamp: new Date(),
+//   };
+//   res.json(randomData);
+// });
+
 export default router;

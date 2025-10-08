@@ -1,4 +1,6 @@
 import User from "../models/user.model.js";
+import followerModel from "../models/follower.model.js";
+import mongoose from "mongoose";
 import {
   uploadonCloudinary,
   deleteFromCloudinary,
@@ -74,16 +76,13 @@ const userRegister = async (req, res, next) => {
 const userLogin = async (req, res, next) => {
   try {
     if (!req.body)
-      return res
-        .status(400)
-        .json({ error: "Username and password are required" });
-    const { username, password } = req.body;
-    if (!username || !password)
-      return res
-        .status(400)
-        .json({ error: "Username and password are required" });
+      return res.status(400).json({ error: "Email and password are required" });
+    const { email, password } = req.body;
+    // console.log("Login request body:", req.body);
+    if (!email || !password)
+      return res.status(400).json({ error: "Email and password are required" });
 
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ email });
     //console.log("User found:", user);
     if (!user) return res.status(404).json({ error: "User not found" });
     if (!user.isPasswordCorrect(password))
@@ -93,7 +92,8 @@ const userLogin = async (req, res, next) => {
     const { accessToken, refreshToken } = generateAccessandRefreshToken(user);
     const options = {
       httpOnly: true,
-      secure: true,
+      secure: false,
+      sameSite: "lax",
     };
     return res
       .status(200)
@@ -122,7 +122,7 @@ const logout = async (req, res, next) => {
   );
   const options = {
     httpOnly: true,
-    secure: true,
+    secure: false,
   };
   return res
     .status(200)
@@ -198,7 +198,7 @@ const changeAvatar = async (req, res, next) => {
         .json({ error: "Please upload a required picture" });
     if (user.avatar?.public_id) {
       await deleteFromCloudinary(user.avatar.public_id);
-      console.log("Previous avatar deleted from Cloudinary");
+      // console.log("Previous avatar deleted from Cloudinary");
     }
 
     const newAvatarLocalPath = req.files.avatar[0].path;
@@ -216,9 +216,80 @@ const changeAvatar = async (req, res, next) => {
     next(error);
   }
 };
-export { userRegister };
-export { userLogin };
-export { logout };
-export { refreshAccessToken };
-export { changePassword };
-export { changeAvatar };
+
+const userProfile = async (req, res, next) => {
+  try {
+    const { username } = req.params;
+
+    const result = await User.aggregate([
+      { $match: { username: username.toLowerCase() } },
+
+      // users who follow this user
+      {
+        $lookup: {
+          from: "followers",
+          localField: "_id",
+          foreignField: "channel",
+          as: "followedBy",
+        },
+      },
+
+      // users this user follows
+      {
+        $lookup: {
+          from: "followers",
+          localField: "_id",
+          foreignField: "follower",
+          as: "followedTo",
+        },
+      },
+
+      // add counts
+      {
+        $addFields: {
+          followerCount: { $size: "$followedBy" },
+          followedByUserCount: { $size: "$followedTo" },
+        },
+      },
+
+      // add isFollowed flag safely
+      {
+        $addFields: {
+          isFollowed: req.user
+            ? {
+                $in: [
+                  new mongoose.Types.ObjectId(req.user._id),
+                  "$followedBy.follower",
+                ],
+              }
+            : false,
+        },
+      },
+
+      // select only required fields
+      {
+        $project: {
+          username: 1,
+          avatar: 1,
+          followerCount: 1,
+          followedByUserCount: 1,
+          isFollowed: 1,
+        },
+      },
+    ]);
+
+    return res.status(200).json({ data: result[0] });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export {
+  userRegister,
+  userLogin,
+  logout,
+  refreshAccessToken,
+  changePassword,
+  changeAvatar,
+  userProfile,
+};

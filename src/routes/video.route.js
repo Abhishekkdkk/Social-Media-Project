@@ -5,6 +5,10 @@ import {
   uploadVideo,
   viewcount,
   likecount,
+  deleteVideo,
+  changeThumbnail,
+  editTitle,
+  editDescription,
 } from "../contollers/video.controller.js";
 import verifyjwt from "../middlewares/auth.middleware.js";
 const router = Router();
@@ -17,4 +21,10 @@ router
   );
 router.route("/:id/view").put(viewcount);
 router.route("/:id/like").put(likecount);
+router.route("/:id/delete").delete(verifyjwt, deleteVideo);
+router
+  .route("/:id/changeThumbnail")
+  .post(verifyjwt, upload.single("thumbnail"), changeThumbnail);
+router.route("/:id/editTitle").post(verifyjwt, editTitle);
+router.route("/:id/editDescription").post(verifyjwt, editDescription);
 export default router;

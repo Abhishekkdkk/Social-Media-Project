@@ -1,6 +1,6 @@
 import Video from "../models/video.model.js";
 import User from "../models/user.model.js";
-import { uploadonCloudinary } from "../utils/cloudinary.js";
+import { uploadonCloudinary,deleteFromCloudinary } from "../utils/cloudinary.js";
 
 const uploadVideo = async (req, res, next) => {
   try {
@@ -77,4 +77,62 @@ const likecount = async (req, res, next) => {
     next(error);
   }
 };
-export { uploadVideo, viewcount, likecount };
+
+const deleteVideo = async (req, res, next) => {
+  try{
+    const video = await Video.findById(req.params.id);
+    if(!video) return res.status(404).json({error:"Video not found"});
+    await deleteFromCloudinary(video.videourl);
+    await Video.findByIdAndDelete(req.params.id);
+    return res.status(200).json({message:"Video deleted successfully"});
+  }
+  catch(error){
+    next(error);
+  }
+};
+const changeThumbnail = async (req, res, next) => {
+  try{
+    const video = await Video.findById(req.params.id);
+    if(!video) return res.status(404).json({error:"Video not found"});
+    if(!req.file) return res.status(400).json({error:"Please upload a required thumbnail"});
+    await deleteFromCloudinary(video.thumbnail);
+    const Localthumbnailpath = req.file.path;
+    const thumbnailUrl = await uploadonCloudinary(Localthumbnailpath);
+    video.thumbnail = thumbnailUrl.secure_url;
+    await video.save({validateBeforeSave:false});
+    return res.status(200).json({message:"Thumbnail changed successfully",video});
+  }
+  catch(error){
+    next(error);
+  }
+};
+const editTitle=async(req,res,next)=>{
+  try{
+    const video = await Video.findById(req.params.id);
+    if(!video) return res.status(404).json({error:"Video not found"});
+    const { title } = req.body;
+    if(!title) return res.status(400).json({error:"Please provide a new title"});
+    video.title = title;
+    await video.save({validateBeforeSave:false});
+    return res.status(200).json({message:"Title changed successfully",video});
+  }
+  catch(error){
+    next(error);
+  }
+};
+const editDescription=async(req,res,next)=>{
+  try{
+    const video = await Video.findById(req.params.id);
+    if(!video) return res.status(404).json({error:"Video not found"});
+    const { description } = req.body;
+    if(!description) return res.status(400).json({error:"Please provide a new description"});
+    video.description = description;
+    await video.save({validateBeforeSave:false});
+    return res.status(200).json({message:"Description changed successfully",video});
+  }
+  catch(error){
+    next(error);
+  }
+}
+;
+export { uploadVideo, viewcount, likecount,deleteVideo,changeThumbnail,editTitle,editDescription };
