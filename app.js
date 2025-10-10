@@ -5,8 +5,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import userroutes from './src/routes/user.routes.js';
 import videoroutes from './src/routes/video.routes.js';
-import imageroutes from './src/routes/image.routes.js';
-import textroutes from './src/routes/text.routes.js';
+import postroutes from './src/routes/post.routes.js';
+
 
 dotenv.config();
 connectDB();
@@ -19,7 +19,6 @@ app.use(express.static('public'));
 app.use(cookieParser());
 app.use('/api/users', userroutes);
 app.use('/api/videos', videoroutes);
-app.use('/api/images', imageroutes);
-app.use('/api/texts', textroutes);
+app.use('/api/posts', postroutes);
 
 app.listen(process.env.PORT);

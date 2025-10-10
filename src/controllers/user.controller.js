@@ -1,26 +1,36 @@
-import mongoose from "mongoose";
-
 import User from '../models/user.model.js';
 import {cloudinary, uploadtocloudinary, delfromcloudinary} from "../utils/cloudinary.js";
 import path from 'path';
-import {delfile} from '../utils/helper.js';
+import {delfile, isImage} from '../utils/helper.js';
 import jwt from 'jsonwebtoken';
 
 const registeruser = async (req, res, next) => {
     if(!req.body) return res.status(400).send('Fields cannot be empty');
     if(!req.file) return res.status(400).send('Avatar must be sent');
-    let {username, email, password} = req.body;
     let avatar = req.file.filename;
-    if(!username) {delfile(avatar); return res.status(400).send('Username cannot be empty');}
-    if(!email) {delfile(avatar); return res.status(400).send('Email cannot be empty');}
-    if(!password) {delfile(avatar); return res.status(400).send('Password cannot be empty');}
-    
+    if(!isImage(req.file)){
+        delfile(avatar);
+        return res.status(400).json({error : 'Avatar must be a image file'});
+    }
 
+    let {username, email, password} = req.body;
+    
+    if(!username){
+        delfile(avatar);
+        return res.status(400).json({error : 'Username cannot be empty'});
+    }
+    if(!email){
+        delfile(avatar); return res.status(400).json({error : 'Email cannot be empty'});
+    }
+    if(!password){
+        delfile(avatar); return res.status(400).json({error : 'Password cannot be empty'});
+    }
+    
     try{
         let matchusername = await User.findOne({username : username});
-        if(matchusername) return res.status(401).send('Username already used');
+        if(matchusername) return res.status(401).json({error : 'Username already used'});
         let matchemail = await User.findOne({email : email});
-        if(matchemail) return res.status(401).send('Email already used');
+        if(matchemail) return res.status(401).json({error : 'Email already used'});
 
     
 
@@ -57,15 +67,15 @@ const registeruser = async (req, res, next) => {
 }
 
 const loginuser = async (req, res, next) => {
-    if(!req.body) return res.status(400).send('Fields cannot be empty');
+    if(!req.body) return res.status(400).json({error : 'Fields cannot be empty'});
     let {email, password} = req.body;
-    if(!email) return res.status(400).send('Email cannot be empty');
-    if(!password) return res.status(400).send('Password cannot be empty');
+    if(!email) return res.status(400).json({error : 'Email cannot be empty'});
+    if(!password) return res.status(400).json({error : 'Password cannot be empty'});
     try{
         let user = await User.findOne({email : email});
-        if(!user) return res.status(404).send('User not found');
+        if(!user) return res.status(404).json({error : 'User not found'});
         let check = await user.isPasswordCorrect(password);
-        if(!check) return res.status(401).send('Incorrect password');
+        if(!check) return res.status(401).json({error : 'Incorrect password'});
         let accessToken = await user.generateAccessToken();
         let refreshToken = await user.generateRefreshToken();
         user.refreshToken = refreshToken;
@@ -104,10 +114,10 @@ catch(e){next(e);}
 const refreshAccessToken = async(req, res, next) => {
      try{
         const givenToken = req.cookies.refreshToken;
-        if(!givenToken) return res.status(403).send('No refresh token');
+        if(!givenToken) return res.status(403).json({error : 'No refresh token'});
     
         let decoded = jwt.verify(givenToken, process.env.REFRESH_TOKEN_SECRET);
-        //console.log(decoded);
+        
         let user = await User.findById(decoded._id);
         if(!user || givenToken !== user.refreshToken) return res.status(401).json({error : 'Invalid refresh token'});
         let accessToken = await user.generateAccessToken();
@@ -129,7 +139,7 @@ const refreshAccessToken = async(req, res, next) => {
         } )
         .json({success : true, message : 'Token refreshed successfully'});
 
-    }catch(e){next(e)}
+    }catch(e){next(e);}
 }
 
 const changepw = async(req, res, next) => {
@@ -154,6 +164,10 @@ const changepw = async(req, res, next) => {
 const changeAvatar = async(req, res, next) => {
     try{
         if(!req.file) return res.status(400).json({error : 'Avatar must be sent'});
+        if(!isImage(req.file)){
+            delfile(req.file.filename);
+            return res.status(400).json({error : 'Avatar must be a image file'});
+        }
         let user = await User.findById(req.user._id);
          let avatar = req.file.filename;
         if(!user || !user.avatar?.public_id){ delfile(avatar); return res.status(404).json({error : 'Avatar not found'});}
@@ -165,39 +179,16 @@ const changeAvatar = async(req, res, next) => {
         //   process.cwd() = __dirname for es6
 
         const result = await uploadtocloudinary(filepath);
-        let imgurl = {url : result.secure_url, public_id : result.public_id};
+        let img = {url : result.secure_url, public_id : result.public_id};
 
         
-        user.avatar = imgurl;
+        user.avatar = img;
         await user.save();
         res.status(200).json({success : true, message : 'Avatar changed successfully'});
 
     }catch(e){next(e);}
 }
 
-const followuser = async (req, res, next) => {
-    try{
-        let currentuser = await User.findById(req.user._id);
-        if(!currentuser) return res.status(401).json({error : 'Invalid Access token'});
 
-        let targetuser = await User.findById(req.params.id);
-        if(!targetuser) return res.status(404).json({error : 'User not found'});
 
-        if(currentuser.followings.some(id => id.equals(req.params.id))){
-            currentuser.followings = currentuser.followings.filter(id => !id.equals(targetuser._id));
-            targetuser.followers = targetuser.followers.filter(id => !id.equals(currentuser._id));
-            await currentuser.save();
-            await targetuser.save();
-            return res.status(200).json({success : true, message : 'Unfollowed user successfully'});
-        }
-
-        currentuser.followings.push(targetuser._id);
-        targetuser.followers.push(currentuser._id);
-
-        await currentuser.save();
-        await targetuser.save();
-        res.status(200).json({success : true, message : 'Followed user successfully'});
-    }catch(e){next(e);}
-}
-
-export {registeruser, loginuser, logoutuser, refreshAccessToken, changepw, changeAvatar, followuser};
+export {registeruser, loginuser, logoutuser, refreshAccessToken, changepw, changeAvatar, };

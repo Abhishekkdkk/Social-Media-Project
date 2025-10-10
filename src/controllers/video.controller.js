@@ -2,13 +2,23 @@ import mongoose from "mongoose";
 import Video from '../models/video.model.js';
 import User from '../models/user.model.js';
 import jwt from 'jsonwebtoken';
-import {delfile} from '../utils/helper.js';
+import {delfile, isImage, isVideo} from '../utils/helper.js';
 import {uploadtocloudinary, delfromcloudinary} from "../utils/cloudinary.js";
 
 const uploadvdo = async (req, res, next) => {
     let vdoresult, thumbnail_result;
     try{
         if(!req.files?.vdo || !req.files?.thumbnail) return res.status(400).json({error : 'Video and thumbnail must be sent'});
+        if(!isImage(req.files.thumbnail[0])){
+        delfile(req.files.vdo[0].filename);
+        delfile(req.files.thumbnail[0].filename);
+        return res.status(400).json({error : 'Thumbnail must be a image file'});
+    }
+    if(!isVideo(req.files.vdo[0])){
+        delfile(req.files.vdo[0].filename);
+        delfile(req.files.thumbnail[0].filename);
+        return res.status(400).json({error : 'Uploaded video must be a video file'});
+    }
         if(!req.body?.title || !req.body?.description) {
             delfile(req.files.vdo[0].filename);
             delfile(req.files.thumbnail[0].filename);
@@ -86,14 +96,7 @@ const likecount = async (req, res, next) => {
 
         if(!video) return res.status(404).json({error : 'Video not found'});
         if(!user) return res.status(401).json({error : 'Invalid access token'});
-    
-        if(user.likedvideos.includes(req.params.id)){
-            video.likecount--;
-            await video.save();
-            user.likedvideos = user.likedvideos.filter((video) => video.toString() !== req.params.id);
-            await user.save();
-            return res.status(200).json({success : true, message : 'Likecount decremented successfully', video});
-        }
+        if(user.likedvideos.includes(req.params.id)) return res.status(400).json({error : 'Likecount decremented successfully'});
 
         video.likecount++;
         await video.save();
@@ -103,6 +106,21 @@ const likecount = async (req, res, next) => {
         res.status(200).json({success : true, message : 'Likecount incremented successfully', video});
     } catch(e) {next(e);}
 
+}
+
+const unlike = async (req, res, next) => {
+    try{
+        let video = await Video.findById(req.params.id);   
+        let user = await User.findById(req.user._id);
+
+        if(!video) return res.status(404).json({error : 'Video not found'});
+        if(!user) return res.status(401).json({error : 'Invalid access token'});
+        if(!user.likedvideos.includes(req.params.id)) return res.status(400).json({error : "User hasn't liked the video"});
+        video.likecount--;
+        await video.save();
+        user.likedvideos = user.likedvideos.filter((img) => img.toString() !== req.params.id);
+        await user.save();
+    }catch(e){next(e);}
 }
 
 const delvdo = async (req, res, next) => {
@@ -144,6 +162,10 @@ const changethumbnail = async (req, res, next) => {
     try{
         if(!req.file) return res.status(400).json({error : 'Thumbnail must be sent'});
         let thumbnail = req.file.filename;
+        if(!isImage(req.file)){
+            delfile(thumbnail);
+            return res.status(400).json({error : 'Thumbnail must be a image file'});
+        }
         let user = await User.findById(req.user._id);
         if(!user){
             delfile(thumbnail); 
@@ -171,7 +193,7 @@ const changethumbnail = async (req, res, next) => {
         
         video.thumbnail = imgurl;
         await video.save();
-        res.status(200).json({success : true, message : 'Thumbnail changed successfully'}, video);
+        res.status(200).json({success : true, message : 'Thumbnail changed successfully', video});
 
     }catch(e){
         if(req.file) delfile(req.file.filename);
@@ -179,4 +201,57 @@ const changethumbnail = async (req, res, next) => {
     }
 }
 
-export {uploadvdo, viewcount, likecount, delvdo, sharecount, changethumbnail};
+const addcomment = async (req, res, next) => {
+    try{
+        let user = await User.findById(req.user._id);
+        if(!user) return res.status(401).json({error : 'Invalid refresh token'});
+        let video = await Video.findById(req.params.id);
+        if(!video) return res.status(404).json({error : 'Video not found'});
+        if(!req.body?.comment) return res.status(400).json({error : 'Comment must be sent'});
+
+        let newcomment = {userId : user._id, text : req.body.comment};
+        video.comments.push(newcomment);
+        await video.save();
+        let cmt = video.comments;
+
+        res.status(200).json({success : true, message : 'New comment added', commentcount : cmt.length, comments : cmt});
+
+    }catch(e){next(e);}
+}
+
+const delcomment = async (req, res, next) => {
+    try{
+        let user = await User.findById(req.user._id);
+        if(!user) return res.status(401).json({error : 'Invalid refresh token'});
+        let video = await Video.findById(req.params.vdoid);
+        if(!video) return res.status(404).json({error : 'Video not found'});
+        let cmt = video.comments.id(req.params.cmtid);
+        if(!cmt) return res.status(404).json({error : 'Comment not found'});
+        if(!cmt.userId.equals(req.user._id)) return res.status(403).json({error : "Comment doesn't belong to the user"});
+        video.comments = video.comments.filter(c => !c._id.equals(cmt._id));
+        await video.save();
+
+        cmt = video.comments;
+        res.status(200).json({success : true, message : 'Comment deleted successfully', commentcount : cmt.length, comments : cmt});
+    } catch(e){next(e);}
+}
+
+const editcomment =  async (req, res, next) => {
+    try{
+        let user = await User.findById(req.user._id);
+        if(!user) return res.status(401).json({error : 'Invalid refresh token'});
+        let video = await Video.findById(req.params.vdoid);
+        if(!video) return res.status(404).json({error : 'Video not found'});
+        let cmt = video.comments.id(req.params.cmtid);
+        if(!cmt) return res.status(404).json({error : 'Comment not found'});
+        if(!req.body?.comment) return res.status(400).json({error : 'New edited comment must be sent'});
+        if(!cmt.userId.equals(req.user._id)) return res.status(403).json({error : "Comment doesn't belong to the user"});
+
+        cmt.text = req.body.comment;
+        await video.save();
+
+        res.status(200).json({success : true, message : 'Comment edited successfully', commentcount : video.comments.length, editedcomment : cmt});
+    }catch(e){next(e);}
+}
+
+export {uploadvdo, viewcount, likecount, unlike,  delvdo, sharecount, changethumbnail, addcomment, delcomment, editcomment};

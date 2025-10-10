@@ -20,16 +20,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    followers : [{
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'User',
-        default : []
-    }],
-    followings : [{
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'user',
-        default : []
-    }],
     watchHistory: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Video'
@@ -50,19 +40,11 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Video'
     }],
-    images : {
+    posts : {
         type : Array,
         default : []
     },
-    likedimages : [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Image',
-    }],
-    texts : {
-        type : Array,
-        default : []
-    },
-    likedtexts : [{
+    likedposts : [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Text',
     }]

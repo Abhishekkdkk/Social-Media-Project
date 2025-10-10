@@ -1,14 +1,14 @@
 import mongoose from 'mongoose';
 
-const imgschema = new mongoose.Schema({
+const postschema = new mongoose.Schema({
     userId : {
             type : mongoose.Schema.Types.ObjectId,
             ref : 'User',
             required : true
         },
-    title : {
+    text : {
         type : String,
-        required : true
+        
     },
     uploadDate : {
         type : Date,
@@ -42,5 +42,5 @@ const imgschema = new mongoose.Schema({
     }]
 });
 
-let Image = mongoose.model('Image', imgschema);
-export default Image;
+let Post = mongoose.model('Post', postschema);
+export default Post;
