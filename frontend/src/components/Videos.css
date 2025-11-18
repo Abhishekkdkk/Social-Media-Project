@@ -1,0 +1,15 @@
+.main {
+  display: flex;
+  height: 100vh;
+  background-color: rgb(43, 40, 40);
+  color: white;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+}
+.left-sidebar {
+  width: 15%;
+  overflow: hidden;
+}
+.video-container {
+  width: 85%;
+}

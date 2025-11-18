@@ -1,0 +1,98 @@
+.left-slide-bar {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  gap: 20px;
+}
+
+.logo {
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 70px;
+}
+.logo img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+
+  border: 1px solid white;
+  border-radius: 20px;
+}
+.videos {
+  padding: 20px 0;
+  width: 100%;
+  border: 1px solid rgb(106, 100, 100);
+  text-align: center;
+  border-radius: 15px;
+}
+.shorts {
+  padding: 20px 0;
+  width: 100%;
+  border: 1px solid rgb(106, 100, 100);
+  text-align: center;
+  border-radius: 15px;
+}
+.subscriptions {
+  padding: 20px 0;
+  width: 100%;
+  border: 1px solid rgb(106, 100, 100);
+  text-align: center;
+  border-radius: 15px;
+}
+.liked-videos {
+  padding: 20px 0;
+  width: 100%;
+  border: 1px solid rgb(106, 100, 100);
+  text-align: center;
+  border-radius: 15px;
+}
+.history {
+  padding: 20px 0;
+  width: 100%;
+  border: 1px solid rgb(106, 100, 100);
+  text-align: center;
+  border-radius: 15px;
+}
+/* 🔽 Responsive design for tablets and phones */
+@media (max-width: 768px) {
+  .left-slide-bar {
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    height: 70px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    gap: 0;
+    background-color: #000; /* optional background */
+    z-index: 999;
+  }
+
+  .logo {
+    display: none; /* hide logo on small screens */
+  }
+
+  .videos,
+  .shorts,
+  .subscriptions,
+  .liked-videos,
+  .history {
+    flex: 1;
+    padding: 10px 0;
+    border: none; /* remove box borders for cleaner bottom nav */
+    border-radius: 0;
+    text-align: center;
+    font-size: 0.85rem;
+  }
+
+  .left-slide-bar a {
+    color: white;
+    text-decoration: none;
+  }
+}
