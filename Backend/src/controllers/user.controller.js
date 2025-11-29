@@ -5,8 +5,8 @@ import {delfile, isImage} from '../utils/helper.js';
 import jwt from 'jsonwebtoken';
 
 const registeruser = async (req, res, next) => {
-    if(!req.body) return res.status(400).send('Fields cannot be empty');
-    if(!req.file) return res.status(400).send('Avatar must be sent');
+    if(!req.body) return res.status(400).json({error : 'Fields cannot be empty'});
+    if(!req.file) return res.status(400).json({error : 'Avatar must be sent'});
     let avatar = req.file.filename;
     if(!isImage(req.file)){
         delfile(avatar);
