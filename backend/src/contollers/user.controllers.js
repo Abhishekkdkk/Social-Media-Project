@@ -85,7 +85,7 @@ const userLogin = async (req, res, next) => {
     const user = await User.findOne({ email });
     //console.log("User found:", user);
     if (!user) return res.status(404).json({ error: "User not found" });
-    if (!user.isPasswordCorrect(password))
+    if (!(await user.isPasswordCorrect(password)))
       return res
         .status(401)
         .json({ error: "Incorrect password! Enter the correct password" });
@@ -217,68 +217,86 @@ const changeAvatar = async (req, res, next) => {
   }
 };
 
+export const getUserProfileByUsername = async (
+  username,
+  currentUserId = null
+) => {
+  const result = await User.aggregate([
+    { $match: { username: username.toLowerCase() } },
+
+    // users who follow this user
+    {
+      $lookup: {
+        from: "followers",
+        localField: "_id",
+        foreignField: "channel",
+        as: "followedBy",
+      },
+    },
+
+    // users this user follows
+    {
+      $lookup: {
+        from: "followers",
+        localField: "_id",
+        foreignField: "follower",
+        as: "followedTo",
+      },
+    },
+
+    // add counts and isFollowed flag
+    {
+      $addFields: {
+        followerCount: { $size: "$followedBy" },
+        followedByUserCount: { $size: "$followedTo" },
+        isFollowed: currentUserId
+          ? {
+              $in: [
+                { $toObjectId: currentUserId },
+                {
+                  $map: {
+                    input: "$followedBy",
+                    as: "f",
+                    in: { $toObjectId: "$$f.follower" },
+                  },
+                },
+              ],
+            }
+          : false,
+      },
+    },
+
+    {
+      $project: {
+        username: 1,
+        avatar: 1,
+        followerCount: 1,
+        followedByUserCount: 1,
+        isFollowed: 1,
+      },
+    },
+  ]);
+  return result[0];
+};
+
 const userProfile = async (req, res, next) => {
   try {
-    const { username } = req.params;
+    const test = req.params.username;
+    const user = await getUserProfileByUsername(
+      test,
+      req.user ? req.user._id : null
+    );
+    if (!user) return res.status(404).json({ error: "User not found" });
+    return res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
 
-    const result = await User.aggregate([
-      { $match: { username: username.toLowerCase() } },
-
-      // users who follow this user
-      {
-        $lookup: {
-          from: "followers",
-          localField: "_id",
-          foreignField: "channel",
-          as: "followedBy",
-        },
-      },
-
-      // users this user follows
-      {
-        $lookup: {
-          from: "followers",
-          localField: "_id",
-          foreignField: "follower",
-          as: "followedTo",
-        },
-      },
-
-      // add counts
-      {
-        $addFields: {
-          followerCount: { $size: "$followedBy" },
-          followedByUserCount: { $size: "$followedTo" },
-        },
-      },
-
-      // add isFollowed flag safely
-      {
-        $addFields: {
-          isFollowed: req.user
-            ? {
-                $in: [
-                  new mongoose.Types.ObjectId(req.user._id),
-                  "$followedBy.follower",
-                ],
-              }
-            : false,
-        },
-      },
-
-      // select only required fields
-      {
-        $project: {
-          username: 1,
-          avatar: 1,
-          followerCount: 1,
-          followedByUserCount: 1,
-          isFollowed: 1,
-        },
-      },
-    ]);
-
-    return res.status(200).json({ data: result[0] });
+const allUsers = async (req, res, next) => {
+  try {
+    const users = await User.find().select("-password -refreshToken");
+    return res.status(200).json({ users });
   } catch (error) {
     next(error);
   }

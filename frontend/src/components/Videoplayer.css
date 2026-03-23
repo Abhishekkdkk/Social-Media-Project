@@ -1,0 +1,140 @@
+.video-details {
+  display: flex;
+  flex-direction: column;
+}
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+.video-user-avatar-details {
+  display: flex;
+  flex-direction: row;
+  margin-top: 10px;
+  justify-content: space-between;
+  padding-top: 10px;
+  height: 60px;
+}
+
+.left-section {
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+  gap: 10px;
+}
+.right-section {
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+  gap: 10px;
+}
+.video-user-avatar img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  padding-top: 5px;
+}
+.channel-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.channel-name {
+  font-weight: bold;
+  font-size: 18px;
+}
+.follower-count {
+  font-size: 14px;
+  color: gray;
+}
+
+.followedbutton {
+  background: gray;
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tofollowbutton {
+  background: none;
+  color: white;
+  border: solid 1px white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.likebutton {
+  background: none;
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.likebuttonliked {
+  background: grey;
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: white;
+}
+
+button {
+  cursor: pointer;
+}
+
+.sharebutton {
+  background: none;
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.description-section {
+  margin-top: 35px;
+  font-size: 16px;
+  color: #ddd;
+  border: 1px solid #e8e4e4;
+  padding: 10px;
+  border-radius: 8px;
+}
+.description-text {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  white-space: pre-wrap;
+  text-overflow: ellipsis;
+}
+
+.description-text.expanded {
+  -webkit-line-clamp: unset;
+}
+
+.read-more-btn {
+  background: none;
+  border: none;
+  color: #065fd4;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 4px;
+}
+.comment-section-container {
+  border: 1px solid white;
+  margin-top: 20px;
+  border-radius: 10px;
+}

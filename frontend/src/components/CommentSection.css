@@ -1,0 +1,31 @@
+.comment-section {
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
+}
+.add-new-comment {
+  display: flex;
+  flex-direction: row;
+}
+.avatar {
+  height: 30px;
+  width: 30px;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.text-button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-left: 10px;
+}
+.comment-input {
+  border: none;
+  border-bottom: 1px solid #ccc;
+  padding: 8px 4px;
+  outline: none;
+}
+.comments-list {
+  margin-top: 25px;
+}

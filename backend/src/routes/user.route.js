@@ -9,7 +9,7 @@ import {
   changeAvatar,
   userProfile,
 } from "../contollers/user.controllers.js";
-import { followUser } from "../contollers/follower.controller.js";
+import { followUser, unfollowUser } from "../contollers/follower.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 import verifyjwt from "../middlewares/auth.middleware.js";
 const router = Router();
@@ -34,7 +34,9 @@ router
 
 router.route("/profile/:username").get(verifyjwt, userProfile); //give username as params
 router.route("/follow/:channel").post(verifyjwt, followUser); //give channelId as params
+router.route("/unfollow/:channel").post(verifyjwt, unfollowUser);
 
+//give channelId as params
 //   router.route("/test").get((req, res) => {
 //   const randomData = {
 //     users: [

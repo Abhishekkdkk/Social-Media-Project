@@ -8,7 +8,7 @@ const api = axios.create({
 });
 
 export const loginUser = async (data) => {
-  console.log(data);
+  // console.log(data);
   return axios.post(`${BASE_URL}/users/login`, data, { withCredentials: true });
 };
 

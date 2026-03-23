@@ -3,10 +3,11 @@
   width: 30%;
   border: 1px solid rgb(43, 40, 40);
   border-radius: 20px;
+  cursor: pointer;
 }
 .thumbnail-image img {
   width: 100%;
-  height: 60%;
+  height: 215px;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   object-fit: cover;
@@ -14,6 +15,7 @@
 .video-user-avatar {
   display: flex;
   margin-top: 10px;
+  height: 120px;
 }
 .video-user-avatar img {
   width: 30px;

@@ -1,11 +1,23 @@
 import { useNavigate } from "react-router";
 import "../assets/VideoSearchBar.css";
+import { queryVideo } from "../services/VideoServices";
 export default function VideoSearchBar() {
   const navigate = useNavigate();
   const upload = () => {
     navigate("/upload");
   };
-  const search = () => {};
+  const search = async () => {
+    const query = document.querySelector(".search-input").value.trim();
+    //console.log("Search query:", query);
+    if (query) {
+      const response = await queryVideo(query);
+      // console.log("Search results:", response);
+
+      navigate(`/Videos/results?q=${encodeURIComponent(query)}`);
+    } else {
+      alert("Please enter a search query.");
+    }
+  };
   return (
     <div className="search-bar">
       <div className="search-box">

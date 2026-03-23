@@ -54,4 +54,28 @@ const followUser = async (req, res, next) => {
   }
 };
 
-export { followUser };
+const unfollowUser = async (req, res, next) => {
+  try {
+    const channelId = req.user._id;
+    const channelusername = req.params.channel;
+    const channel = await User.findOne({ username: channelusername });
+    if (!channel) {
+      return res.status(400).json({ error: "Valid Channel ID is required" });
+    }
+    const alreadyFollowing = await followerModel.findOne({
+      follower: channelId,
+      channel: channel._id,
+    });
+    if (!alreadyFollowing) {
+      return res.status(400).json({ error: "You are not following this user" });
+    }
+    await followerModel.deleteOne({
+      follower: channelId,
+      channel: channel._id,
+    });
+    return res.status(200).json({ message: "Unfollowed successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+export { followUser, unfollowUser };

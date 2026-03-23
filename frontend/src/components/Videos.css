@@ -4,12 +4,18 @@
   background-color: rgb(43, 40, 40);
   color: white;
   font-family: Arial, sans-serif;
-  overflow: hidden;
 }
 .left-sidebar {
   width: 15%;
-  overflow: hidden;
 }
 .video-container {
   width: 85%;
+  overflow-y: auto;
+}
+.video-container::-webkit-scrollbar {
+  display: none;
+}
+.views-and-date {
+  display: flex;
+  gap: 50px;
 }

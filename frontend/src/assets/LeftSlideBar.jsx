@@ -5,7 +5,7 @@ function LeftSlideBar() {
   return (
     <div className="left-slide-bar">
       <Link to="/home" className="logo">
-        <img src="image.png" alt="Logo" />
+        <img src="/image.png" alt="Logo" />
       </Link>
       <Link to="/Videos" className="videos">
         Videos
