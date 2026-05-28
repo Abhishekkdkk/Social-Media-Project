@@ -11,9 +11,11 @@ export default function VideoSearchBar() {
     //console.log("Search query:", query);
     if (query) {
       const response = await queryVideo(query);
-      // console.log("Search results:", response);
+      //console.log("Search results:", response);
 
-      navigate(`/Videos/results?q=${encodeURIComponent(query)}`);
+      navigate(`/Videos/search?q=${encodeURIComponent(query)}`, {
+        state: { videos: response.videos },
+      });
     } else {
       alert("Please enter a search query.");
     }

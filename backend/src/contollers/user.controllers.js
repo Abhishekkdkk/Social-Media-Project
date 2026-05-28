@@ -62,7 +62,7 @@ const userRegister = async (req, res, next) => {
     user.refreshToken = refreshToken;
     await user.save();
     const usersuccess = await User.findOne({ email }).select(
-      "-password -refreshToken"
+      "-password -refreshToken",
     );
     if (usersuccess)
       return res
@@ -118,7 +118,7 @@ const logout = async (req, res, next) => {
   const user = await User.findByIdAndUpdate(
     req.user._id,
     { refreshToken: null },
-    { new: true }
+    { new: true },
   );
   const options = {
     httpOnly: true,
@@ -161,7 +161,7 @@ const refreshAccessToken = async (req, res, next) => {
           .json({
             message: "Token refreshed successfully",
           });
-      }
+      },
     );
   } catch (error) {
     next(error);
@@ -219,12 +219,20 @@ const changeAvatar = async (req, res, next) => {
 
 export const getUserProfileByUsername = async (
   username,
-  currentUserId = null
+  currentUserId = null,
 ) => {
-  const result = await User.aggregate([
-    { $match: { username: username.toLowerCase() } },
+  if (!username) return null;
 
-    // users who follow this user
+  const result = await User.aggregate([
+    {
+      $match: {
+        username: {
+          $regex: `^${username}$`,
+          $options: "i",
+        },
+      },
+    },
+
     {
       $lookup: {
         from: "followers",
@@ -234,7 +242,6 @@ export const getUserProfileByUsername = async (
       },
     },
 
-    // users this user follows
     {
       $lookup: {
         from: "followers",
@@ -244,25 +251,10 @@ export const getUserProfileByUsername = async (
       },
     },
 
-    // add counts and isFollowed flag
     {
       $addFields: {
         followerCount: { $size: "$followedBy" },
         followedByUserCount: { $size: "$followedTo" },
-        isFollowed: currentUserId
-          ? {
-              $in: [
-                { $toObjectId: currentUserId },
-                {
-                  $map: {
-                    input: "$followedBy",
-                    as: "f",
-                    in: { $toObjectId: "$$f.follower" },
-                  },
-                },
-              ],
-            }
-          : false,
       },
     },
 
@@ -272,21 +264,34 @@ export const getUserProfileByUsername = async (
         avatar: 1,
         followerCount: 1,
         followedByUserCount: 1,
-        isFollowed: 1,
       },
     },
   ]);
+
   return result[0];
 };
-
 const userProfile = async (req, res, next) => {
   try {
-    const test = req.params.username;
-    const user = await getUserProfileByUsername(
-      test,
-      req.user ? req.user._id : null
-    );
-    if (!user) return res.status(404).json({ error: "User not found" });
+    const param = req.params.id; // single param
+    //console.log("Received param for user profile:", param);
+    let user;
+
+    // check if param is mongodb object id
+    if (mongoose.Types.ObjectId.isValid(param)) {
+      user = await User.findById(param).select("username avatar");
+    } else {
+      user = await getUserProfileByUsername(
+        param,
+        req.user ? req.user._id : null,
+      );
+    }
+
+    if (!user) {
+      return res.status(404).json({
+        error: "User not found",
+      });
+    }
+
     return res.status(200).json(user);
   } catch (error) {
     next(error);
@@ -301,7 +306,11 @@ const allUsers = async (req, res, next) => {
     next(error);
   }
 };
-
+const getMe = (req, res) => {
+  res.json({
+    user: req.user,
+  });
+};
 export {
   userRegister,
   userLogin,
@@ -310,4 +319,6 @@ export {
   changePassword,
   changeAvatar,
   userProfile,
+  allUsers,
+  getMe,
 };

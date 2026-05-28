@@ -11,6 +11,7 @@ import NotFound from "./components/NotFound.jsx";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import FriendsSection from "./components/FriendsSection.jsx";
 import SearchedVideos from "./assets/SearchedVideos.jsx";
+import ChatPage from "./components/chats/ChatPage.jsx";
 function App() {
   return (
     <Routes>
@@ -35,6 +36,7 @@ function App() {
       ></Route>
       <Route
         path="Videos"
+        className="videos"
         caseSensitive
         element={
           <PrivateRoute>
@@ -69,7 +71,25 @@ function App() {
           </PrivateRoute>
         }
       ></Route>
-      
+      <Route
+        path="Videos/search"
+        caseSensitive
+        element={
+          <PrivateRoute>
+            <SearchedVideos />
+          </PrivateRoute>
+        }
+      ></Route>
+      <Route
+        path="/Chats"
+        caseSensitive
+        element={
+          <PrivateRoute>
+            <ChatPage />
+          </PrivateRoute>
+        }
+      ></Route>
+
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

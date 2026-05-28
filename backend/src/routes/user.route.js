@@ -8,9 +8,18 @@ import {
   changePassword,
   changeAvatar,
   userProfile,
+  getMe,
 } from "../contollers/user.controllers.js";
 import { followUser, unfollowUser } from "../contollers/follower.controller.js";
 import upload from "../middlewares/multer.middleware.js";
+import {
+  acceptFriendRequest,
+  rejectFriendRequest,
+  sendFriendRequest,
+  deleteFriend,
+  mutualFriends,
+  friendSuggestions,
+} from "../contollers/friends.controller.js";
 import verifyjwt from "../middlewares/auth.middleware.js";
 const router = Router();
 
@@ -29,24 +38,22 @@ router
   .post(
     verifyjwt,
     upload.fields([{ name: "avatar", maxCount: 1 }]),
-    changeAvatar
+    changeAvatar,
   ); //upload new avatar in form-data with key as avatar
 
-router.route("/profile/:username").get(verifyjwt, userProfile); //give username as params
+router.route("/profile/:id").get(verifyjwt, userProfile);
+//give username as params
 router.route("/follow/:channel").post(verifyjwt, followUser); //give channelId as params
 router.route("/unfollow/:channel").post(verifyjwt, unfollowUser);
-
-//give channelId as params
-//   router.route("/test").get((req, res) => {
-//   const randomData = {
-//     users: [
-//       { id: 1, name: "Alice", age: Math.floor(Math.random() * 50) + 18 },
-//       { id: 2, name: "Bob", age: Math.floor(Math.random() * 50) + 18 },
-//       { id: 3, name: "Charlie", age: Math.floor(Math.random() * 50) + 18 },
-//     ],
-//     timestamp: new Date(),
-//   };
-//   res.json(randomData);
-// });
-
+router.route("/friendrequest/:username").post(verifyjwt, sendFriendRequest); //give username of the person you want to send friend request to as params
+router
+  .route("/acceptfriendrequest/:username")
+  .post(verifyjwt, acceptFriendRequest); //give username of the person whose friend request you want to accept as params
+router
+  .route("/rejectfriendrequest/:username")
+  .post(verifyjwt, rejectFriendRequest); //give username of the person whose friend request you want to reject as params
+router.route("/deletefriend/:username").post(verifyjwt, deleteFriend); //give username of the friend you want to delete as params
+router.route("/mutualfriends/:username").get(verifyjwt, mutualFriends); //give username of the person whose mutual friends you want to see as params
+router.route("/friendsuggestions").post(verifyjwt, friendSuggestions); //get friend suggestions for the logged-in user
+router.route("/me").get(verifyjwt, getMe); //get profile of logged-in user
 export default router;

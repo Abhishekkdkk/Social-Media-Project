@@ -1,26 +1,34 @@
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
+import "./NavBar.css";
 function NavBar() {
   const navigate = useNavigate();
+
   const handleClick = (page) => {
-    console.log(`Navigating to ${page}`);
     navigate(`/${page}`);
   };
 
   return (
-    <nav className="bg-violet-400 p-3 flex w-full border-2 border-gray-600 text-black">
-      <div className="m-5 flex-1" onClick={() => handleClick("home")}>
+    <nav className="navbar">
+      <div className="nav-item" onClick={() => handleClick("home")}>
         Home
       </div>
-      <div className="m-5 flex-1" onClick={() => handleClick("Friends")}>
+
+      <div className="nav-item" onClick={() => handleClick("Friends")}>
         Friends
       </div>
-      <div className="m-5 flex-1" onClick={() => handleClick("Videos")}>
+
+      <div className="nav-item" onClick={() => handleClick("Videos")}>
         Videos
       </div>
-      <div className="m-5 flex-1" onClick={() => handleClick("Notifications")}>
+
+      <div className="nav-item" onClick={() => handleClick("Notifications")}>
         Notifications
+      </div>
+      <div className="nav-item" onClick={() => handleClick("Chats")}>
+        Chats
       </div>
     </nav>
   );
 }
+
 export default NavBar;

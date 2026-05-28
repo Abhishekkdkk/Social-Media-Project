@@ -5,7 +5,7 @@
 .search-box {
   display: flex;
   margin-top: 15px;
-  border: white 1px solid;
+  border: black 1px solid;
   border-radius: 20px;
   width: 45%;
   margin-left: 265px;
@@ -15,7 +15,7 @@
 .upload-button {
     cursor: pointer;
   margin-top: 15px;
-  border: white 1px solid;
+  border: black 1px solid;
   border-radius: 15px;
   padding: 10px 20px;
 }
@@ -27,7 +27,7 @@
 }
 .search-button {
   border: none;
-  color: white;
+  color: black;
   border-radius: 0px 20px 20px 0px;
   padding-right:10px;
   padding-left:10px;

@@ -1,0 +1,63 @@
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+
+  /* Prevent flicker caused by repaint */
+  will-change: opacity;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.loader-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Smooth modern ring loader */
+.loader-ring {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  position: relative;
+}
+
+.loader-ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  padding: 4px;
+  background: conic-gradient(#4f46e5, transparent 60%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 0);
+  mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 0);
+  animation: spin 0.9s linear infinite;
+}
+
+.loader-text {
+  color: #e5e7eb;
+  font-size: 14px;
+  letter-spacing: 0.6px;
+  opacity: 0.9;
+}
+
+/* Animations */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

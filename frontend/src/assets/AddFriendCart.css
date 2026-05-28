@@ -1,0 +1,95 @@
+.add-friend-cart {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 12px 14px;
+  margin: 10px 0;
+
+  background: #1a1a1a;
+  border: 1px solid #2b2b2b;
+  border-radius: 14px;
+
+  transition: 0.2s ease;
+}
+
+.add-friend-cart:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* LEFT SIDE */
+.left-side {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.left-side img {
+  width: 45px;
+  height: 45px;
+
+  border-radius: 50%;
+  object-fit: cover;
+
+  border: 2px solid #333;
+}
+
+/* text wrapper */
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.name {
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+}
+
+.mutuals {
+  font-size: 12px;
+  color: #a0a0a0;
+}
+
+/* ACTIONS */
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.actions button {
+  padding: 7px 12px;
+
+  border-radius: 8px;
+  border: none;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+/* Add button */
+.actions .add {
+  background: #2d6cdf;
+  color: white;
+}
+
+.actions .add:hover {
+  background: #1f5bd1;
+}
+
+/* Remove button */
+.actions .remove {
+  background: #2a2a2a;
+  color: #ccc;
+}
+
+.actions .remove:hover {
+  background: #3a3a3a;
+  color: white;
+}

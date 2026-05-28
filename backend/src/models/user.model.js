@@ -43,8 +43,12 @@ const userSchema = new mongoose.Schema(
       type: Array, //videos liked by the user
       default: [],
     },
+    friendscount: {
+      type: Number,
+      default: 0,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {

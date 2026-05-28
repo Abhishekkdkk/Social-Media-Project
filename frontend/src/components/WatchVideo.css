@@ -1,8 +1,7 @@
 .main {
   display: flex;
   height: 100vh;
-  background-color: rgb(43, 40, 40);
-  color: #fff;
+  color: black ;
 }
 .navBar {
   flex-direction: column;
@@ -16,7 +15,7 @@
 .three-lines span {
   display: block;
   height: 4px;
-  background: #fff;
+  background: #000;
   margin: 6px 0;
   border-radius: 3px;
 }
@@ -26,7 +25,6 @@
 }
 .video-display-area {
   width: 70%;
-  background-color: #222;
   margin: 20px;
   border-radius: 8px;
   overflow-y: auto;
@@ -38,7 +36,6 @@
   display: none;
 }
 .suggestion-videos {
-  background-color: #222;
   margin: 20px;
   border-radius: 8px;
   width: 30%;

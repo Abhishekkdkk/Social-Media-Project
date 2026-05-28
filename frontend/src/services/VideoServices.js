@@ -58,9 +58,11 @@ export const addComment = async (id, data) => {
 
 export const queryVideo = async (searchQuery) => {
   try {
+    console.log("Searching videos with query:", searchQuery);
     const res = await axios.get(
-      `${BASE_URL}/results?q=${encodeURIComponent(searchQuery)}`,
+      `${BASE_URL}/search?q=${encodeURIComponent(searchQuery)}`,
     );
+    //console.log("Search results received:", res.data);
     return res.data;
   } catch (err) {
     console.error("Error searching videos:", err.response?.data);

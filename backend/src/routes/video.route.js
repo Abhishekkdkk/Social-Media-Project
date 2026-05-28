@@ -25,7 +25,7 @@ router
     upload.fields([{ name: "videourl" }, { name: "thumbnail" }]),
     uploadVideo,
   );
-router.route("/results").get(queryVideo);
+router.route("/search").get(queryVideo);
 router.route("/:id").get(verifyjwt, viewVideo);
 router.route("/:id/view").put(viewcount);
 

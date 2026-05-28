@@ -3,6 +3,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import userRouter from "./src/routes/user.route.js";
 import videoRouter from "./src/routes/video.route.js";
+import chatRouter from "./src/routes/chat.route.js";
+import messageRouter from "./src/routes/message.route.js";
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -14,12 +16,14 @@ app.use(
     credentials: true, // allow cookies (for refresh token etc.)
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-  })
+  }),
 );
 
 app.use("/api/users", userRouter);
 app.use("/api/videos", videoRouter);
 app.use("/api/posts", videoRouter);
+app.use("/api/chats", chatRouter);
+app.use("/api/messages", messageRouter);
 export default app;
 app.listen(process.env.PORT || 5000, () => {
   console.log(`Server is running on port ${process.env.PORT || 5000}`);

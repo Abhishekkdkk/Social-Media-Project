@@ -1,0 +1,72 @@
+.user-display {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  padding: 10px 12px;
+  gap: 12px;
+
+  box-sizing: border-box;
+
+  overflow: hidden; /* prevents layout escape */
+}
+.user-display .image {
+  width: 45px;
+  height: 45px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+  overflow: hidden;
+  background: #ddd;
+}
+.user-display .body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+.user-display .user-info {
+  display: flex;
+  flex-direction: column;
+
+  flex: 1;
+  min-width: 0;
+
+  overflow: hidden;
+}
+.user-display .user-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.user-display .last-message {
+  font-size: 13px;
+  color: #777777;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  max-width: 100%;
+}
+.user-display .online-status {
+  width: 10px;
+  height: 10px;
+
+  border-radius: 50%;
+  background: #ccc;
+
+  flex-shrink: 0;
+  margin-left: 8px;
+}
