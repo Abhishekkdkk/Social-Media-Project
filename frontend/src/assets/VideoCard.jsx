@@ -15,13 +15,11 @@ export default function VideoCard({ video }) {
 
   return (
     <div className="main-card" onClick={handleClick}>
-
       <div className="thumbnail-image">
         <img src={video.thumbnail} alt={video.title} />
       </div>
 
       <div className="video-user-avatar">
-
         <img src={video.userId?.avatar?.url} alt="avatar" />
 
         <div className="video-details">
@@ -34,7 +32,6 @@ export default function VideoCard({ video }) {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
