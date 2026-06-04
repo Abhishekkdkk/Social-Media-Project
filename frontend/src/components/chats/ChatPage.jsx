@@ -4,10 +4,12 @@ import ChatSideBar from "./ChatSideBar";
 import ChatSection from "./ChatSection";
 import { useState, useEffect } from "react";
 import axios from "axios";
+
 function ChatPage() {
   const [chatId, setChatId] = useState(null);
   const [activeChat, setActiveChat] = useState(null);
   const [user, setUser] = useState(null);
+
   useEffect(() => {
     const fetchUser = async () => {
       const res = await axios.get("http://localhost:5000/api/users/me", {
@@ -19,19 +21,23 @@ function ChatPage() {
 
     fetchUser();
   }, []);
+
   return (
     <div className="chat-page">
       <div className="nav-section">
         <NavBar />
       </div>
-      <div className="main-section">
+
+      <div className="main-chatsection">
         <div className="user-section">
           <ChatSideBar
             setChatId={setChatId}
             setActiveChat={setActiveChat}
+            activeChat={activeChat}
             user={user}
           />
         </div>
+
         <div className="chat-section">
           {chatId ? (
             <ChatSection
@@ -41,8 +47,10 @@ function ChatPage() {
             />
           ) : (
             <div className="empty-chat">
-              <h2>Welcome 👋</h2>
-              <p>Select a chat to start messaging</p>
+              <div className="empty-chat-content">
+                <h2>Messages</h2>
+                <p>Select a conversation from the sidebar to start chatting.</p>
+              </div>
             </div>
           )}
         </div>

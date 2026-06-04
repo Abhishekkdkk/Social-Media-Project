@@ -73,8 +73,6 @@ const likecount = async (req, res, next) => {
 
     if (!user) return res.status(404).json({ error: "User not found" });
     if (!video) return res.status(404).json({ error: "Video not found" });
-
-    // Ensure likedvideos is an array
     if (!Array.isArray(user.likedvideos)) user.likedvideos = [];
 
     let isLiked;
@@ -177,7 +175,12 @@ const videolist = async (req, res, next) => {
     const videos = await Video.find()
       .sort({ createdAt: -1 })
       .populate("userId", "username avatar");
-    return res.status(200).json({ videos });
+
+    const validVideos = videos.filter((video) => video.userId);
+
+    res.json({
+      videos: validVideos,
+    });
   } catch (error) {
     next(error);
   }

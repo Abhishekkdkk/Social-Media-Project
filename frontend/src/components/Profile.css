@@ -1,0 +1,206 @@
+.profile-container {
+  width: 100%;
+  min-height: 100vh;
+  background: #0a0a0a;
+  color: white;
+}
+
+/* COVER */
+.cover {
+  width: 100%;
+  height: 220px;
+  background: linear-gradient(135deg, #111, #222);
+  position: relative;
+}
+
+.cover-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* PROFILE HEADER */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 40px;
+
+  /* IMPORTANT FIX */
+  margin-top: -60px; /* pulls header slightly up but controlled */
+  position: relative;
+  z-index: 2;
+
+  background: #0a0a0a;
+  border-radius: 12px;
+}
+
+.profile-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  border: 4px solid #0b0b0f;
+  object-fit: cover;
+}
+
+.profile-info h2 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.stats {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: #aaa;
+  flex-wrap: wrap;
+}
+
+.edit-btn {
+  margin-left: auto;
+  background: #2a2a3b;
+  border: none;
+  color: white;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.edit-btn:hover {
+  background: #3a3a55;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #222;
+}
+
+.tabs button {
+  background: transparent;
+  border: none;
+  color: #aaa;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.tabs button.active {
+  background: #1f1f2e;
+  color: white;
+}
+
+/* CONTENT */
+.content {
+  padding: 2rem;
+}
+
+/* POSTS */
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.post-card {
+  background: #141420;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #222;
+  transition: 0.2s;
+}
+
+.post-card:hover {
+  transform: translateY(-3px);
+  border-color: #333;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.post-header img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.post-text {
+  margin: 0.5rem 0;
+  color: #ddd;
+}
+
+.post-image {
+  width: 100%;
+  border-radius: 10px;
+  margin-top: 0.5rem;
+}
+
+.post-footer {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #bbb;
+}
+
+/* FRIENDS */
+.friends-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 160px));
+  justify-content: start; /* prevents stretching */
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+/* FRIEND CARD */
+.friend-card {
+  background: #141420;
+  border: 1px solid #222;
+  border-radius: 14px;
+
+  width: 150px;
+  height: 180px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 1rem;
+  transition: 0.2s ease;
+  cursor: pointer;
+}
+
+.friend-card:hover {
+  transform: translateY(-3px);
+  border-color: #333;
+  background: #171726;
+}
+
+/* AVATAR */
+.friend-card img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #2a2a3b;
+  margin-bottom: 0.6rem;
+}
+
+/* NAME */
+.friend-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #e5e5e5;
+  text-align: center;
+
+  /* prevents ugly long usernames */
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

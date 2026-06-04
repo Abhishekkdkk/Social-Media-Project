@@ -1,25 +1,29 @@
 import { useNavigate } from "react-router";
+import { useState } from "react";
 import "../assets/VideoSearchBar.css";
 import { queryVideo } from "../services/VideoServices";
-export default function VideoSearchBar() {
+
+export default function VideoSearchBar({ setVideos }) {
   const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+
   const upload = () => {
     navigate("/upload");
   };
-  const search = async () => {
-    const query = document.querySelector(".search-input").value.trim();
-    //console.log("Search query:", query);
-    if (query) {
-      const response = await queryVideo(query);
-      //console.log("Search results:", response);
 
-      navigate(`/Videos/search?q=${encodeURIComponent(query)}`, {
-        state: { videos: response.videos },
-      });
-    } else {
-      alert("Please enter a search query.");
+  const search = async () => {
+    const trimmed = query.trim();
+
+    if (!trimmed) {
+      return;
     }
+
+    const response = await queryVideo(trimmed);
+
+    // update VideoSection directly
+    setVideos(response.videos);
   };
+
   return (
     <div className="search-bar">
       <div className="search-box">
@@ -27,6 +31,9 @@ export default function VideoSearchBar() {
           type="text"
           placeholder="Search videos..."
           className="search-input"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && search()}
         />
 
         <button className="search-button" onClick={search}>
@@ -34,9 +41,9 @@ export default function VideoSearchBar() {
         </button>
       </div>
 
-      <div onClick={upload} className="upload-button">
+      <button className="upload-button" onClick={upload}>
         Upload
-      </div>
+      </button>
     </div>
   );
 }

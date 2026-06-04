@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import "./App.css";
-import { BrowserRouter, Route, Routes } from "react-router";
+import { Route, Routes } from "react-router-dom";
+
 import RegisterandLogin from "./components/RegisterandLogin.jsx";
-import HomePage from "./components/HomePage.jsx";
-import Profile from "./components/Profile.jsx";
 import Videos from "./components/Videos.jsx";
 import VideoUploadForm from "./components/UploadVideo.jsx";
 import WatchVideo from "./components/WatchVideo.jsx";
@@ -12,83 +11,99 @@ import PrivateRoute from "./components/PrivateRoute.jsx";
 import FriendsSection from "./components/FriendsSection.jsx";
 import SearchedVideos from "./assets/SearchedVideos.jsx";
 import ChatPage from "./components/chats/ChatPage.jsx";
+import ProfilePage from "./components/Profile.jsx";
+import HomePage from "./components/HomePage.jsx";
+
+import socket from "./socket"; 
+
 function App() {
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    if (!token) return;
+
+    socket.connect();
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [token]);
+
   return (
     <Routes>
-      <Route path="/" caseSensitive element={<RegisterandLogin />}></Route>
+      <Route path="/" element={<RegisterandLogin />} />
+
       <Route
-        path="home"
-        caseSensitive
+        path="/home"
         element={
           <PrivateRoute>
             <HomePage />
           </PrivateRoute>
         }
-      ></Route>
+      />
+
       <Route
-        path="profile"
-        caseSensitive
-        element={
-          <PrivateRoute>
-            <Profile />
-          </PrivateRoute>
-        }
-      ></Route>
-      <Route
-        path="Videos"
-        className="videos"
-        caseSensitive
+        path="/videos"
         element={
           <PrivateRoute>
             <Videos />
           </PrivateRoute>
         }
-      ></Route>
+      />
+
       <Route
-        path="upload"
-        caseSensitive
+        path="/upload"
         element={
           <PrivateRoute>
             <VideoUploadForm />
           </PrivateRoute>
         }
-      ></Route>
+      />
+
       <Route
-        path="video/:id"
-        caseSensitive
+        path="/video/:id"
         element={
           <PrivateRoute>
             <WatchVideo />
           </PrivateRoute>
         }
-      ></Route>
+      />
+
       <Route
-        path="Friends"
-        caseSensitive
+        path="/friends"
         element={
           <PrivateRoute>
             <FriendsSection />
           </PrivateRoute>
         }
-      ></Route>
+      />
+
       <Route
-        path="Videos/search"
-        caseSensitive
+        path="/videos/search"
         element={
           <PrivateRoute>
             <SearchedVideos />
           </PrivateRoute>
         }
-      ></Route>
+      />
+
       <Route
-        path="/Chats"
-        caseSensitive
+        path="/chats"
         element={
           <PrivateRoute>
             <ChatPage />
           </PrivateRoute>
         }
-      ></Route>
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <PrivateRoute>
+            <ProfilePage />
+          </PrivateRoute>
+        }
+      />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

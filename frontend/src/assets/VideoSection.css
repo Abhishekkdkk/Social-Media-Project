@@ -1,8 +1,43 @@
 .video-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+/* LOADING TEXT */
+.loading-text {
+  color: #aaa;
   padding: 20px;
-  justify-content: flex-start;
-  overflow-y: auto;
+  font-size: 14px;
+}
+
+/* VIDEO CARD WRAPPER SAFETY */
+.video-section > * {
+  width: 100%;
+}
+
+/* ========================= */
+/* RESPONSIVE BREAKPOINTS */
+/* ========================= */
+
+/* Large tablets / small laptops */
+@media (max-width: 1200px) {
+  .video-section {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Tablets */
+@media (max-width: 900px) {
+  .video-section {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .video-section {
+    grid-template-columns: repeat(1, 1fr);
+    padding: 12px;
+  }
 }

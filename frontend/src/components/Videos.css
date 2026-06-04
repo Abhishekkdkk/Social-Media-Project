@@ -1,21 +1,114 @@
-.main {
-  display: flex;
-  height: 100vh;
-  color: black ;
-  font-family: Arial, sans-serif;
-  overflow: hidden;
+.video-page {
+  display: grid;
+  grid-template-columns: 240px 1fr 280px;
+  gap: 16px;
+  padding: 12px;
+  min-height: 100vh;
+  background: #0f0f0f;
+  color: white;
 }
+
+/* ====== LEFT SIDEBAR ====== */
 .left-sidebar {
-  width: 15%;
-}
-.video-container {
-  width: 85%;
+  background: #0a0a0a; /* slightly lifted black */
+  border-right: 1px solid #141414;
+  padding: 12px;
   overflow-y: auto;
 }
-.video-container::-webkit-scrollbar {
-  display: none;
-}
-.views-and-date {
+
+/* ====== CENTER SECTION ====== */
+.video-main {
   display: flex;
-  gap: 50px;
+  flex-direction: column;
+  overflow: hidden;
+  background: #000;
+}
+
+/* SEARCH BAR AREA */
+.video-search {
+  padding: 12px;
+  border-bottom: 1px solid #141414;
+  background: #000;
+}
+
+/* VIDEO FEED */
+.video-feed {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: #000;
+}
+
+/* subtle scrollbar */
+.video-feed::-webkit-scrollbar {
+  width: 6px;
+}
+
+.video-feed::-webkit-scrollbar-thumb {
+  background: #1f1f1f;
+  border-radius: 10px;
+}
+
+/* ====== RIGHT SIDEBAR ====== */
+.right-sidebar {
+  background: #0a0a0a;
+  border-left: 1px solid #141414;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.right-box {
+  background: #0f0f0f;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+/* RIGHT SIDEBAR TEXT */
+.right-box h4 {
+  color: #a1a1a1;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.right-box p {
+  padding: 10px;
+  margin: 6px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #d1d1d1;
+  transition: 0.2s ease;
+  background: transparent;
+}
+
+.right-box p:hover {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+/* ====== RESPONSIVE DESIGN ====== */
+
+/* TABLET */
+@media (max-width: 1024px) {
+  .video-page {
+    grid-template-columns: 240px 1fr;
+  }
+
+  .right-sidebar {
+    display: none;
+  }
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .video-page {
+    grid-template-columns: 1fr;
+  }
+
+  .left-sidebar {
+    display: none;
+  }
+
+  .video-feed {
+    padding: 10px;
+  }
 }

@@ -19,7 +19,7 @@ function CommentSection({ videoId }) {
     const fetchComments = async () => {
       try {
         const res = await commentLists(videoId);
-        console.log(res);
+       // console.log(res);
         setCommentList(res.comments);
         setCommentCount(res.commentCount);
         setCurrentUserAvatar(res.currentUserAvatar);
@@ -40,7 +40,6 @@ function CommentSection({ videoId }) {
     try {
       const res = await addComment(videoId, formData);
 
-      // 🔑 NORMALIZE COMMENT SHAPE
       const safeComment = {
         ...res.comment,
         replies: res.comment.replies || [],

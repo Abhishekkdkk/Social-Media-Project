@@ -6,6 +6,8 @@ import {
   deleteFromCloudinary,
 } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
+import Friendship from "../models/friendship.model.js";
+import Post from "../models/post.model.js";
 const generateAccessandRefreshToken = (user) => {
   try {
     const accessToken = user.generateAccessToken();
@@ -272,32 +274,90 @@ export const getUserProfileByUsername = async (
 };
 const userProfile = async (req, res, next) => {
   try {
-    const param = req.params.id; // single param
-    //console.log("Received param for user profile:", param);
+    const param = req.params.id;
+
     let user;
 
-    // check if param is mongodb object id
-    if (mongoose.Types.ObjectId.isValid(param)) {
+    const isObjectId = mongoose.Types.ObjectId.isValid(param);
+
+    // 1. Get user
+    if (isObjectId) {
       user = await User.findById(param).select("username avatar");
     } else {
-      user = await getUserProfileByUsername(
-        param,
-        req.user ? req.user._id : null,
-      );
+      user = await User.findOne({ username: param }).select("username avatar");
     }
 
     if (!user) {
-      return res.status(404).json({
-        error: "User not found",
-      });
+      return res.status(404).json({ error: "User not found" });
     }
 
-    return res.status(200).json(user);
+    const userId = user._id;
+
+    // 2. Followers
+    const followers = await followerModel
+      .find({ channel: userId })
+      .populate("follower", "username avatar");
+
+    // 3. Following
+    const following = await followerModel
+      .find({ follower: userId })
+      .populate("channel", "username avatar");
+
+    // 4. FRIENDS (FIXED + DEDUPED LOGIC)
+    const rawFriends = await Friendship.find({
+      $or: [{ userId }, { friendId: userId }],
+    })
+      .populate("userId", "username avatar")
+      .populate("friendId", "username avatar");
+
+    // 🔥 normalize + clean + dedupe
+    const friendMap = new Map();
+
+    rawFriends.forEach((f) => {
+      const u = f.userId;
+      const v = f.friendId;
+
+      // ❌ skip invalid records
+      if (!u || !v) return;
+
+      const uId = u._id.toString();
+      const vId = v._id.toString();
+
+      // ❌ skip self-friend (corrupted data)
+      if (uId === vId) return;
+
+      // identify the "other user"
+      const other = uId === userId.toString() ? v : u;
+
+      if (!other) return;
+
+      const otherId = other._id.toString();
+
+      // 🔥 prevent duplicates (A-B and B-A)
+      friendMap.set(otherId, other);
+    });
+
+    const friends = Array.from(friendMap.values());
+
+    // 5. Posts
+    const posts = await Post.find({
+      userId: user._id,
+    })
+      .sort({ createdAt: -1 })
+      .populate("userId", "username avatar");
+
+    // 6. Response
+    return res.status(200).json({
+      user,
+      followers,
+      following,
+      friends,
+      posts,
+    });
   } catch (error) {
     next(error);
   }
 };
-
 const allUsers = async (req, res, next) => {
   try {
     const users = await User.find().select("-password -refreshToken");

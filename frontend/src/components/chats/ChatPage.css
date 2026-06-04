@@ -1,56 +1,107 @@
 .chat-page {
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  background: #000;
   overflow: hidden;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #e9f5ff, #f5f7fb);
 }
 
 /* NAVBAR */
 .nav-section {
-  flex: 0 0 auto;
+  flex-shrink: 0;
+  z-index: 100;
 }
 
-/* MAIN WRAPPER */
-.main-section {
-  display: flex;
+/* MAIN CONTENT */
+.main-chatsection {
   flex: 1;
-  min-height: 0;
+  display: flex;
+  flex-direction: row;
   overflow: hidden;
+
+  padding: 12px;
+  gap: 12px;
+
+  background: #000;
 }
 
-/* 🔥 THIS IS THE KEY FIX */
+/* SIDEBAR */
 .user-section {
-  flex: 0 0 30%;
-  min-width: 260px; /* prevent collapse */
-  max-width: 380px; /* prevent expansion */
+  width: 340px;
+  min-width: 300px;
+  max-width: 360px;
+
+  background: #0f0f0f;
+
+  border: 1px solid #1f1f1f;
+  border-radius: 18px;
+
+  overflow: hidden;
 
   display: flex;
   flex-direction: column;
-
-  overflow: hidden; /* CRITICAL */
 }
 
-/* RIGHT CHAT AREA */
+/* CHAT WINDOW */
 .chat-section {
   flex: 1;
+
+  background: #0f0f0f;
+
+  border: 1px solid #1f1f1f;
+  border-radius: 18px;
+
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* EMPTY CHAT */
+.empty-chat {
+  flex: 1;
+
   display: flex;
   flex-direction: column;
 
-  min-width: 0;
-  min-height: 0;
-
-  background: #efeae2;
-  overflow: hidden;
-}
-
-/* EMPTY STATE */
-.empty-chat {
-  flex: 1;
-  display: flex;
   align-items: center;
   justify-content: center;
-  color: #6b7280;
+
   text-align: center;
+
+  color: #9ca3af;
+}
+
+.empty-chat h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: white;
+}
+
+.empty-chat p {
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .main-section {
+    padding: 0;
+    gap: 0;
+  }
+
+  .user-section {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .chat-section {
+    width: 100%;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
 }

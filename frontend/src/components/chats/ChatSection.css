@@ -93,3 +93,21 @@
   color: gray;
   font-size: 16px;
 }
+/* UNREAD / NEW MESSAGE HIGHLIGHT */
+.bubble.new {
+  animation: popIn 0.25s ease-out;
+  border: 2px solid rgba(37, 211, 102, 0.6);
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.25);
+}
+
+/* subtle entrance effect */
+@keyframes popIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

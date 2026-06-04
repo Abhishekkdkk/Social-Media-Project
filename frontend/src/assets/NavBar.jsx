@@ -1,34 +1,35 @@
-import { useNavigate } from "react-router-dom";
 import "./NavBar.css";
-function NavBar() {
+import { Home, Users, Video, MessageCircle, Bell, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+export default function Navbar() {
   const navigate = useNavigate();
 
-  const handleClick = (page) => {
-    navigate(`/${page}`);
-  };
-
   return (
-    <nav className="navbar">
-      <div className="nav-item" onClick={() => handleClick("home")}>
-        Home
+    <div className="navbar">
+      <div className="LeftSection">Social</div>
+      <div className="MiddleSection">
+        <div className="nav-item" onClick={() => navigate("/home")}>
+          <Home />
+        </div>
+        <div className="nav-item" onClick={() => navigate("/Friends")}>
+          <Users />
+        </div>
+        <div className="nav-item" onClick={() => navigate("/Videos")}>
+          <Video />
+        </div>
+        <div className="nav-item" onClick={() => navigate("/Chats")}>
+          <MessageCircle />
+        </div>
       </div>
-
-      <div className="nav-item" onClick={() => handleClick("Friends")}>
-        Friends
+      <div className="RightSection">
+        <div className="nav-item" onClick={() => navigate("/Notifications")}>
+          <Bell />
+        </div>
+        <div className="nav-item" onClick={() => navigate("/Profile")}>
+          <User />
+        </div>
       </div>
-
-      <div className="nav-item" onClick={() => handleClick("Videos")}>
-        Videos
-      </div>
-
-      <div className="nav-item" onClick={() => handleClick("Notifications")}>
-        Notifications
-      </div>
-      <div className="nav-item" onClick={() => handleClick("Chats")}>
-        Chats
-      </div>
-    </nav>
+    </div>
   );
 }
-
-export default NavBar;

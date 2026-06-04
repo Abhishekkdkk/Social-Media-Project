@@ -6,26 +6,44 @@ const newMessage = async (req, res, next) => {
   try {
     const senderId = req.user._id;
     const { chatId, text } = req.body;
+
     if (!chatId || !text) {
       return res.status(400).json({ error: "Chat ID and text are required" });
     }
+
     const chat = await Chat.findById(chatId);
     if (!chat) {
       return res.status(404).json({ error: "Chat not found" });
     }
 
-    const message = new Message({
+    const message = await Message.create({
       senderId,
       chatId,
       text,
     });
-    await message.save();
-    chat.lastMessage = message._id;
-    chat.unReadMessagesCount = (chat.unReadMessagesCount || 0) + 1;
-    await chat.save();
-    return res
-      .status(200)
-      .json({ message: "Message sent successfully", messageId: message._id });
+
+    await Chat.findByIdAndUpdate(chatId, {
+      lastMessage: message._id,
+      $inc: { unReadMessagesCount: 1 },
+    });
+
+    const populated = await Message.findById(message._id).populate("senderId");
+
+    // 🔥 SOCKET EMIT (THIS IS WHAT YOU ARE MISSING)
+    const io = req.app.get("io");
+
+    io.to(String(chatId)).emit("receive_message", {
+      _id: populated._id,
+      chatId: String(chatId),
+      senderId: populated.senderId,
+      text: populated.text,
+      createdAt: populated.createdAt,
+    });
+
+    return res.status(200).json({
+      message: "Message sent successfully",
+      data: populated,
+    });
   } catch (error) {
     next(error);
   }

@@ -6,21 +6,24 @@ import {
   startChat,
 } from "../../services/ChatServices";
 import UserDisplay from "./UserDisplay";
+import socket from "../../socket";
 
-function ChatSideBar({ setChatId, setActiveChat, user }) {
+function ChatSideBar({
+  setChatId,
+  setActiveChat,
+  user,
+  chatId, // IMPORTANT: active selection source of truth
+}) {
   const [users, setUsers] = useState([]);
   const [searchKey, setSearchKey] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [onlineUsers, setOnlineUsers] = useState([]);
 
+  // GET CHATS
   const getChats = async () => {
     try {
       const res = await getUserChats();
-
-      // console.log("RAW RESPONSE:", res);
-
       const data = Array.isArray(res) ? res : [];
-
-      // console.log("EXTRACTED CHATS:", data);
 
       const formatted = data.map((chat) => {
         const lastMsg = chat.lastMessage;
@@ -40,16 +43,57 @@ function ChatSideBar({ setChatId, setActiveChat, user }) {
       setUsers([]);
     }
   };
+
+  // INITIAL LOAD
   useEffect(() => {
-    if (user?._id) {
-      getChats();
-    }
+    if (user?._id) getChats();
   }, [user]);
 
-  // Search users with debounce
+  // ONLINE USERS SOCKET
+  useEffect(() => {
+    const handleOnlineUsers = (users) => {
+      setOnlineUsers(users || []);
+    };
+
+    socket.on("online_users", handleOnlineUsers);
+
+    return () => {
+      socket.off("online_users", handleOnlineUsers);
+    };
+  }, []);
+
+  // NEW MESSAGE SOCKET UPDATE
+  useEffect(() => {
+    const handleNewMessage = (data) => {
+      setUsers((prev) =>
+        prev.map((chat) => {
+          if (chat._id === data.chatId) {
+            return {
+              ...chat,
+              lastMessage: {
+                message: data.message,
+                sender: data.sender,
+                read: false,
+              },
+              isUnread: true,
+            };
+          }
+          return chat;
+        }),
+      );
+    };
+
+    socket.on("receive_message", handleNewMessage);
+
+    return () => {
+      socket.off("receive_message", handleNewMessage);
+    };
+  }, []);
+
+  // SEARCH USERS
   useEffect(() => {
     const delay = setTimeout(async () => {
-      if (searchKey.trim() === "") {
+      if (!searchKey.trim()) {
         setSearchResults([]);
         return;
       }
@@ -61,6 +105,7 @@ function ChatSideBar({ setChatId, setActiveChat, user }) {
     return () => clearTimeout(delay);
   }, [searchKey]);
 
+  // START CHAT
   const handleStartChat = async (userId) => {
     const chat = await startChat(userId);
 
@@ -76,7 +121,7 @@ function ChatSideBar({ setChatId, setActiveChat, user }) {
 
   return (
     <div className="side-bar">
-      {/* Search input */}
+      {/* SEARCH */}
       <div className="search-bar">
         <input
           type="text"
@@ -87,43 +132,58 @@ function ChatSideBar({ setChatId, setActiveChat, user }) {
         />
       </div>
 
-      {/* User / Chat list */}
+      {/* LIST */}
       <div className="users-list">
-        {/* Existing chats */}
+        {/* EXISTING CHATS */}
         {!showSearch &&
-          users.map((chat) => (
-            <div
-              key={chat._id}
-              className={`chat-item ${chat.isUnread ? "unread" : ""}`}
-              onClick={() => {
-                setChatId(chat._id);
-                setActiveChat(chat);
-              }}
-            >
-              <UserDisplay user={chat} />
-            </div>
-          ))}
+          users.map((chat) => {
+            const otherUserId = chat?.otherMember?._id;
+            const isOnline = onlineUsers.includes(otherUserId);
 
-        {/* Search results */}
-        {showSearch &&
-          searchResults.map((user) => (
-            <div key={user._id} className="search-item">
-              <UserDisplay user={user} />
+            const isActive = String(chatId) === String(chat._id); // 🔥 FIXED ACTIVE STATE
 
-              <button
-                className="start-chat-btn"
-                onClick={async () => {
-                  const chat = await handleStartChat(user._id);
-
-                  if (chat) {
-                    setChatId(chat.chatId || chat._id);
-                  }
+            return (
+              <div
+                key={chat._id}
+                className={`chat-item ${chat.isUnread ? "unread" : ""}`}
+                onClick={() => {
+                  setChatId(chat._id);
+                  setActiveChat(chat);
                 }}
               >
-                Start Chat
-              </button>
-            </div>
-          ))}
+                <UserDisplay
+                  user={chat}
+                  isOnline={isOnline}
+                  isActive={isActive}
+                />
+              </div>
+            );
+          })}
+
+        {/* SEARCH RESULTS */}
+        {showSearch &&
+          searchResults.map((user) => {
+            const isOnline = onlineUsers.includes(user._id);
+
+            return (
+              <div key={user._id} className="search-item">
+                <UserDisplay user={user} isOnline={isOnline} />
+
+                <button
+                  className="start-chat-btn"
+                  onClick={async () => {
+                    const chat = await handleStartChat(user._id);
+
+                    if (chat) {
+                      setChatId(chat.chatId || chat._id);
+                    }
+                  }}
+                >
+                  Start Chat
+                </button>
+              </div>
+            );
+          })}
       </div>
     </div>
   );

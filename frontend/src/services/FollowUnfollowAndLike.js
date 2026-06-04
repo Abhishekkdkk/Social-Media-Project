@@ -7,7 +7,7 @@ export const followUser = async (userId) => {
       {},
       {
         withCredentials: true,
-      }
+      },
     );
     return res.data;
   } catch (err) {
@@ -22,7 +22,7 @@ export const unfollowUser = async (userId) => {
       {},
       {
         withCredentials: true,
-      }
+      },
     );
     return res.data;
   } catch (err) {
@@ -38,9 +38,9 @@ export const likeVideo = async (videoId) => {
       {},
       {
         withCredentials: true,
-      }
+      },
     );
-    console.log(res.data);
+    //console.log(res.data);
     return res.data;
   } catch (err) {
     console.error("Error liking video:", err.response?.data);

@@ -133,7 +133,7 @@ function Videoplayer({ url }) {
             </div>
             <div className="sharebutton">
               <button onClick={handleShare}>
-                <svg width="20" height="20" fill="black">
+                <svg width="20" height="20" fill="white">
                   <path d="M14 8l-4-4v3H6v2h4v3l4-4zM5 16h10v2H5z" />
                 </svg>
                 <span style={{ fontSize: "14px" }}>Share</span>

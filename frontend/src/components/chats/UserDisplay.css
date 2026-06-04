@@ -1,72 +1,94 @@
+/* BASE */
 .user-display {
   display: flex;
   align-items: center;
 
   width: 100%;
-  max-width: 100%;
-  min-width: 0;
-
   padding: 10px 12px;
   gap: 12px;
 
-  box-sizing: border-box;
+  border-radius: 12px;
+  cursor: pointer;
 
-  overflow: hidden; /* prevents layout escape */
+  background: #1f2937; /* dark gray default */
+  transition: all 0.2s ease;
 }
+
+/* HOVER */
+.user-display:hover {
+  background: #2b3442;
+}
+
+/* ACTIVE CHAT (FULL BLUE) */
+.user-display.active {
+  background: #2563eb; /* solid blue */
+}
+
+/* ACTIVE TEXT OVERRIDE */
+.user-display.active .user-name,
+.user-display.active .last-message {
+  color: white;
+}
+
+/* AVATAR */
 .user-display .image {
-  width: 45px;
-  height: 45px;
-
-  flex-shrink: 0;
-
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   overflow: hidden;
-  background: #ddd;
+  background: #111;
+  flex-shrink: 0;
 }
+
+.user-display .image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* BODY */
 .user-display .body {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-
   flex: 1;
   min-width: 0;
-  overflow: hidden;
 }
+
+/* TEXT */
 .user-display .user-info {
   display: flex;
   flex-direction: column;
-
-  flex: 1;
   min-width: 0;
-
-  overflow: hidden;
 }
+
 .user-display .user-name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  color: #111;
-
+  color: #e5e7eb;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .user-display .last-message {
-  font-size: 13px;
-  color: #777777;
-
+  font-size: 12px;
+  color: #9ca3af;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
-  max-width: 100%;
 }
-.user-display .online-status {
+
+/* ONLINE DOT */
+.online-status {
   width: 10px;
   height: 10px;
-
   border-radius: 50%;
-  background: #ccc;
+  background: #6b7280; /* offline gray */
+  margin-left: 10px;
+}
 
-  flex-shrink: 0;
-  margin-left: 8px;
+/* ONLINE STATE */
+.online-status.online {
+  background: #22c55e; /* green */
+  box-shadow: 0 0 10px #22c55e;
 }
