@@ -1,4 +1,4 @@
-import "../assets/VideoCard.css";
+import "../assets/VIdeoCard.css";
 import { useNavigate } from "react-router";
 import { formatDistanceToNow } from "date-fns";
 
