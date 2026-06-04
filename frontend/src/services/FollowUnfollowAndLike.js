@@ -1,5 +1,5 @@
 import axios from "axios";
-const BASE_URL = "http://localhost:5000/api/users";
+const BASE_URL = "BACKEND_BASE_URL/api/users";
 export const followUser = async (userId) => {
   try {
     const res = await axios.post(
@@ -30,7 +30,7 @@ export const unfollowUser = async (userId) => {
     return null;
   }
 };
-const BASE_VIDEO_URL = "http://localhost:5000/api/videos";
+const BASE_VIDEO_URL = "BACKEND_BASE_URL/api/videos";
 export const likeVideo = async (videoId) => {
   try {
     const res = await axios.put(

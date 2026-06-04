@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000/api/videos/upload";
+const BASE_URL = "BACKEND_BASE_URL/api/videos/upload";
 
 export const uploadVideo = async (formData) => {
   try {
@@ -18,7 +18,7 @@ export const uploadVideo = async (formData) => {
     console.error(
       "Error uploading video:",
       err.response?.status,
-      err.response?.data || err.message
+      err.response?.data || err.message,
     );
 
     return null;
@@ -37,7 +37,7 @@ export const uploadVideo = async (formData) => {
           "Error status:",
           err.response?.status,
           "Error data:",
-          err.response?.data
+          err.response?.data,
         );
         return null;
       }

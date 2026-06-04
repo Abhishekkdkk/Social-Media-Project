@@ -1,5 +1,5 @@
 import axios from "axios";
-const BASE_URL = "http://localhost:5000/api/users";
+const BASE_URL = "BACKEND_BASE_URL/api/users";
 const getUserProfile = async (userId) => {
   try {
     const res = await axios.get(`${BASE_URL}/profile/${userId}`, {

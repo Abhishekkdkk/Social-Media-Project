@@ -1,5 +1,5 @@
 import axios from "axios";
-const BASE_URL = "http://localhost:5000/api/messages";
+const BASE_URL = "BACKEND_BASE_URL/api/messages";
 
 const sendMessage = async (chatId, text) => {
   try {

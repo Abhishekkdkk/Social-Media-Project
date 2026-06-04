@@ -1,5 +1,5 @@
 import axios from "axios";
-const BASE_URL = "http://localhost:5000/api/chats";
+const BASE_URL = "BACKEND_BASE_URL/api/chats";
 
 const getUserChats = async () => {
   try {

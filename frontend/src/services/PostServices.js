@@ -1,5 +1,5 @@
 import axios from "axios";
-const BASE_URL = "http://localhost:5000/api/posts";
+const BASE_URL = "BACKEND_BASE_URL/api/posts";
 
 export const createPost = async (postData) => {
   try {
@@ -28,7 +28,7 @@ export const getPosts = async () => {
 
 export const myProfile = async () => {
   try {
-    const res = await axios.get(`http://localhost:5000/api/users/me`, {
+    const res = await axios.get(`BACKEND_BASE_URL/api/users/me`, {
       withCredentials: true,
     });
     return res.data;
