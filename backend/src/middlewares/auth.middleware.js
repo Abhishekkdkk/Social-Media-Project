@@ -3,6 +3,7 @@ import User from "../models/user.model.js";
 
 const verifyjwt = async (req, res, next) => {
   const token =
+    req.cookies.token ||
     req.cookies.accessToken ||
     req.header("Authorization")?.replace("Bearer ", "");
   //console.log("Token from request:", token);
@@ -15,7 +16,7 @@ const verifyjwt = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     //console.log("Decoded token:", decoded);
     const user = await User.findById(decoded?._id).select(
-      "-password -refreshToken"
+      "-password -refreshToken",
     );
     // console.log("User from DB:", user);
     if (!user) {
