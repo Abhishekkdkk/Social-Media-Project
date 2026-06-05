@@ -12,9 +12,12 @@ function ChatPage() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const res = await axios.get("BACKEND_BASE_URL/api/users/me", {
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        `${import.meta.env.VITE_BACKEND_BASE_URL}/users/me`,
+        {
+          withCredentials: true,
+        },
+      );
 
       setUser(res.data.user);
     };

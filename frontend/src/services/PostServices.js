@@ -1,5 +1,5 @@
 import axios from "axios";
-const BASE_URL = "BACKEND_BASE_URL/api/posts";
+const BASE_URL = `${import.meta.env.VITE_BACKEND_BASE_URL}/posts`;
 
 export const createPost = async (postData) => {
   try {
@@ -28,9 +28,12 @@ export const getPosts = async () => {
 
 export const myProfile = async () => {
   try {
-    const res = await axios.get(`BACKEND_BASE_URL/api/users/me`, {
-      withCredentials: true,
-    });
+    const res = await axios.get(
+      `${import.meta.env.VITE_BACKEND_BASE_URL}/users/me`,
+      {
+        withCredentials: true,
+      },
+    );
     return res.data;
   } catch (error) {
     console.error("Error fetching profile:", error);

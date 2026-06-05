@@ -17,10 +17,6 @@ function ChatSection({ chatId, activeChat, myUserId }) {
   useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
-
-  // =========================
-  // LOAD CHAT
-  // =========================
   useEffect(() => {
     if (!normalizedChatId) return;
 
@@ -42,9 +38,6 @@ function ChatSection({ chatId, activeChat, myUserId }) {
     };
   }, [normalizedChatId]);
 
-  // =========================
-  // SINGLE GLOBAL SOCKET LISTENER (NO DUPLICATES)
-  // =========================
   useEffect(() => {
     const handler = (message) => {
       const msgChatId = String(
@@ -77,9 +70,6 @@ function ChatSection({ chatId, activeChat, myUserId }) {
     };
   }, [normalizedChatId]);
 
-  // =========================
-  // SEND MESSAGE
-  // =========================
   const handleSendMessage = () => {
     if (!text.trim() || !normalizedChatId) return;
 
@@ -92,9 +82,6 @@ function ChatSection({ chatId, activeChat, myUserId }) {
     setText("");
   };
 
-  // =========================
-  // UI
-  // =========================
   if (!activeChat) {
     return <div className="empty-chat">Select a chat</div>;
   }

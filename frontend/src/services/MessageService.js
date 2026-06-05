@@ -1,5 +1,5 @@
 import axios from "axios";
-const BASE_URL = "BACKEND_BASE_URL/api/messages";
+const BASE_URL = `${import.meta.env.VITE_BACKEND_BASE_URL}/messages`;
 
 const sendMessage = async (chatId, text) => {
   try {
@@ -22,7 +22,7 @@ const getMessages = async (chatId) => {
     const res = await axios.get(`${BASE_URL}/get-chat-messages/${chatId}`, {
       withCredentials: true,
     });
-    console.log("Get messages response:", res.data);
+   // console.log("Get messages response:", res.data);
     return res.data;
   } catch (err) {
     console.log("Get messages error:", err);

@@ -1,7 +1,7 @@
 // services/videoService.js
 import axios from "axios";
 
-const BASE_URL = "BACKEND_BASE_URL/api/videos";
+const BASE_URL = `${import.meta.env.VITE_BACKEND_BASE_URL}/videos`;
 
 export const getVideos = async () => {
   try {

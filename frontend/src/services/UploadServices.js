@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "BACKEND_BASE_URL/api/videos/upload";
+const BASE_URL = `${import.meta.env.VITE_BACKEND_BASE_URL}/videos/upload`;
 
 export const uploadVideo = async (formData) => {
   try {

@@ -1,5 +1,5 @@
 import axios from "axios";
-const BASE_URL = "BACKEND_BASE_URL/api/users";
+const BASE_URL = `${import.meta.env.VITE_BACKEND_BASE_URL}/users`;
 export const followUser = async (userId) => {
   try {
     const res = await axios.post(
@@ -30,7 +30,7 @@ export const unfollowUser = async (userId) => {
     return null;
   }
 };
-const BASE_VIDEO_URL = "BACKEND_BASE_URL/api/videos";
+const BASE_VIDEO_URL = `${import.meta.env.VITE_BACKEND_BASE_URL}/videos`;
 export const likeVideo = async (videoId) => {
   try {
     const res = await axios.put(
