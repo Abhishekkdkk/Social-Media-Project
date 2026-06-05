@@ -94,8 +94,8 @@ const userLogin = async (req, res, next) => {
     const { accessToken, refreshToken } = generateAccessandRefreshToken(user);
     const options = {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
     };
     return res
       .status(200)
@@ -124,7 +124,8 @@ const logout = async (req, res, next) => {
   );
   const options = {
     httpOnly: true,
-    secure: false,
+    secure: true,
+    sameSite: "none",
   };
   return res
     .status(200)
@@ -155,6 +156,7 @@ const refreshAccessToken = async (req, res, next) => {
         const options = {
           httpOnly: true,
           secure: true,
+          sameSite: "none",
         };
         return res
           .status(200)
